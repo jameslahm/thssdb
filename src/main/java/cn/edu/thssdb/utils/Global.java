@@ -14,4 +14,7 @@ public class Global {
   public static final String QUIT = "quit;";
 
   public static final String S_URL_INTERNAL = "jdbc:default:connection";
+
+  public static final String DATA_FOLDER = "data";
+
 }
