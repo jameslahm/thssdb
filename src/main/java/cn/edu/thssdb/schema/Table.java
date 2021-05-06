@@ -24,7 +24,6 @@ public class Table implements Iterable<Row> {
   private int primaryIndex;
 
   public Table(String databaseName, String tableName, Column[] columns) {
-    // TODO
     this.databaseName = databaseName;
     this.tableName = tableName;
     this.columns = new ArrayList<>(Arrays.asList(columns));
