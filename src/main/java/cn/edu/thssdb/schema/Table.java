@@ -28,16 +28,38 @@ public class Table implements Iterable<Row> {
     this.tableName = tableName;
     this.columns = new ArrayList<>(Arrays.asList(columns));
     this.index = new BPlusTree<>();
+    initPrimaryIndex();
+    this.lock = new ReentrantReadWriteLock();
+    // TODO recover
+  }
 
-    for (int i=0;i<columns.length;i++){
-      Column column = columns[i];
+  public void initPrimaryIndex(){
+    for (int i=0;i<columns.size();i++){
+      Column column = this.columns.get(i);
       if(column.getPrimary()){
         primaryIndex = i;
         break;
       }
     }
+  }
 
+  public Table(String databaseName,String tableName){
+    this.databaseName = databaseName;
+    this.tableName = tableName;
+    this.index = new BPlusTree<>();
     this.lock = new ReentrantReadWriteLock();
+    recoverMeta();
+    recover();
+  }
+
+  private String getMetaPath(){
+    return Paths.get(Global.DATA_FOLDER,databaseName,tableName+".meta").toString();
+  }
+
+  public void recoverMeta(){
+    ArrayList<Column> columns = Persist.fromJsonToTableMeta(getMetaPath());
+    this.columns = columns;
+    initPrimaryIndex();
   }
 
   public void recover() {
@@ -78,6 +100,16 @@ public class Table implements Iterable<Row> {
       index.remove(oldEntry);
       index.put(newEntry,newRow);
     }
+  }
+
+  public void drop(){
+    Persist.deleteFile(getDataFilePath());
+    Persist.deleteFile(getMetaPath());
+    index = null;
+    columns = null;
+    primaryIndex = -1;
+    tableName = null;
+    databaseName = null;
   }
 
   public Entry getPrimaryEntry(Row row){
