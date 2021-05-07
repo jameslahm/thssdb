@@ -20,6 +20,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
 import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.List;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.Random;
 
 public class Client {
 
@@ -41,6 +48,17 @@ public class Client {
   private static TProtocol protocol;
   private static IService.Client client;
   private static CommandLine commandLine;
+  
+  private static long session = -1;
+
+  public static boolean isLoclePortUsing(int port){
+    boolean flag = true;
+    try {
+      flag = isPortUsing("127.0.0.1", port);
+    } catch (Exception e) {
+    }
+    return flag;
+  }
 
   public static void main(String[] args) {
     commandLine = parseCmd(args);
@@ -68,8 +86,14 @@ public class Client {
           case Global.QUIT:
             open = false;
             break;
+          case Global.CONNECT:
+            connect();
+            break;
+          case Global.DISCONNECT:
+            disconnect();
+            break;
           default:
-            println("Invalid statements!");
+            executeStatement(msg.trim());
             break;
         }
         long endTime = System.currentTimeMillis();
@@ -92,6 +116,107 @@ public class Client {
       logger.error(e.getMessage());
     }
   }
+
+  /* connect */
+  private static void connect() {
+    if(session >= 0)  {
+      println("Is connected！！");
+      return;
+    }
+    print("Username: ");
+    String username = SCANNER.nextLine();
+    print("Password: ");
+    String password = SCANNER.nextLine();
+    ConnectReq the_request = new ConnectReq(username, password);
+    try {
+      ConnectResp the_respond = client.connect(the_request);
+      println(the_respond.toString());
+      if(the_respond.getStatus().code == Global.SUCCESS_CODE) {
+        session = the_respond.getSessionId();
+      }
+    } catch (TException e) {
+      logger.error(e.getMessage());
+    }
+  }
+  
+  /*disconnect */
+  private static void disconnect() {
+    if(session < 0)  {
+      println("Not connected yet ");
+      return;
+    }
+    DisconnectReq the_request = new DisconnectReq(session);
+    try {
+      DisconnectResp the_respond = client.disconnect(the_request);
+      println(the_respond.toString());
+      if(the_respond.getStatus().code == Global.SUCCESS_CODE) {
+        session = -1;
+      }
+    } catch (TException e) {
+      logger.error(e.getMessage());
+    }
+  }
+  
+  /* executeStatement */
+  private static void executeStatement(String message) {
+    if(session < 0)  {
+      println("Not connected yet ");
+      return;
+    }
+    ExecuteStatementReq the_request = new ExecuteStatementReq();
+    the_request.setStatement(message);
+    the_request.setSessionId(session);
+    try {
+      ExecuteStatementResp the_response = client.executeStatement(the_request);
+      if(the_response.getStatus().code == Global.FAILURE_CODE) {
+        println("failed");
+        println(the_response.getStatus().msg);
+      }
+      else {
+        
+        if(the_response.isSetRowList()) {
+          String column_string = "";
+          //
+          int columns = the_response.columnsList.size();
+          for(int i = 0; i < columns; i ++) {
+            column_string = column_string + the_response.columnsList.get(i);
+            if(i != columns - 1) {
+              column_string += ", ";
+            }
+          }
+          println(column_string);
+          println("-----------------");
+          for(List<String> row :the_response.rowList) {
+            String row_string = "";
+            for(int i = 0; i < columns; i ++) {
+              row_string = row_string + row.get(i);
+              if(i != columns - 1) {
+                row_string += ", ";
+              }
+            }
+            println(row_string);
+          }
+        }
+        else {
+          for(String item : the_response.columnsList) {
+            item = item.trim();
+            if(item.equals("start transaction")) {
+              Tmod = "(T)";
+            }
+            else if(item.equals("commit transaction"))
+            {
+              Tmod = "";
+            }
+            println(item);
+          }
+        }
+      }
+    } catch (TException e) {
+      logger.error(e.getMessage());
+    }
+  }
+
+  
 
   static Options createOptions() {
     Options options = new Options();
@@ -135,7 +260,11 @@ public class Client {
 
   static void showHelp() {
     // TODO
-    println("DO IT YOURSELF");
+    println("To get the time: show time;");
+    println("To connect: connect;");
+    println("To disconnect: disconnect;");
+    println("To quit: quit;");
+    println("To execute a sql statement, just enter the statement you want in a line.");
   }
 
   static void echoStarting() {

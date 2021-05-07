@@ -11,6 +11,10 @@ import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.edu.thssdb.parser.SQLEvaluator;
+import cn.edu.thssdb.utils.Global;
+import org.apache.thrift.server.TThreadPoolServer;
+
 public class ThssDB {
 
   private static final Logger logger = LoggerFactory.getLogger(ThssDB.class);
@@ -21,10 +25,19 @@ public class ThssDB {
   private static TServer server;
 
   private Manager manager;
+  private SQLEvaluator evaluator;
+
+  public ThssDB() {
+    manager = Manager.getInstance();
+    evaluator = new SQLEvaluator(manager);
+  }
 
   public static ThssDB getInstance() {
     return ThssDBHolder.INSTANCE;
   }
+
+  public SQLEvaluator getEvaluator() { return evaluator; }
+
 
   public static void main(String[] args) {
     ThssDB server = ThssDB.getInstance();
