@@ -73,3 +73,5 @@ fabric.properties
 data/
 
 target/
+
+*.tar.gz
