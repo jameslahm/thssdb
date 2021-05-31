@@ -2,14 +2,15 @@ package cn.edu.thssdb.service;
 
 import cn.edu.thssdb.rpc.thrift.ConnectReq;
 import cn.edu.thssdb.rpc.thrift.ConnectResp;
-import cn.edu.thssdb.rpc.thrift.DisconnetReq;
-import cn.edu.thssdb.rpc.thrift.DisconnetResp;
+import cn.edu.thssdb.rpc.thrift.DisconnectReq;
+import cn.edu.thssdb.rpc.thrift.DisconnectResp;
 import cn.edu.thssdb.rpc.thrift.ExecuteStatementReq;
 import cn.edu.thssdb.rpc.thrift.ExecuteStatementResp;
 import cn.edu.thssdb.rpc.thrift.GetTimeReq;
 import cn.edu.thssdb.rpc.thrift.GetTimeResp;
 import cn.edu.thssdb.rpc.thrift.IService;
 import cn.edu.thssdb.rpc.thrift.Status;
+import cn.edu.thssdb.statement.BaseStatement;
 import cn.edu.thssdb.utils.Global;
 import org.apache.thrift.TException;
 
@@ -41,7 +42,7 @@ public class IServiceHandler implements IService.Iface {
   }
 
   @Override
-  public DisconnetResp disconnect(DisconnetReq req) throws TException {
+  public DisconnectResp disconnect(DisconnectReq req) throws TException {
     // TODO
     DisconnectResp resp = new DisconnectResp();
     resp.setStatus(new Status(Global.SUCCESS_CODE));
@@ -52,7 +53,10 @@ public class IServiceHandler implements IService.Iface {
   public ExecuteStatementResp executeStatement(ExecuteStatementReq req) throws TException {
     // TODO
     ExecuteStatementResp resp = new ExecuteStatementResp();
-    SQLEvalResult result = ThssDB.getInstance().getEvaluator().evaluate(req.statement);
+    ArrayList<BaseStatement> stats = ThssDB.getInstance().getEvaluator().evaluate(req.statement);
+
+    ArrayList<SQLEvalResult> results;
+    SQLEvalResult result = results.get(0);
     if (result.onError()) {
         resp.setHasResult(false);
         resp.setIsAbort(true);

@@ -6,6 +6,8 @@ import org.antlr.v4.runtime.CommonTokenStream;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
+import cn.edu.thssdb.statement.BaseStatement;
 
 public class SQLEvaluator {
     private Manager manager;
@@ -14,15 +16,15 @@ public class SQLEvaluator {
         this.manager = manager;
     }
 
-    public SQLEvalResult evaluate(String stmt){
+    public ArrayList<BaseStatement> evaluate(String stmt){
         SQLLexer lexer = new SQLLexer(CharStreams.fromString(stmt));
         SQLParser parser = new SQLParser(new CommonTokenStream(lexer));
         //
         manager.context.mutex.lock();
         manager.context.mutex.unlock();
         try {
-            SQLCustomVisitor visitor = new SQLCustomVisitor(manager);
-            SQLEvalResult result = visitor.visitParse(parser.parse());
+            SQLCustomVisitor visitor = new SQLCustomVisitor();
+            ArrayList<BaseStatement> results = (ArrayList<BaseStatement>) visitor.visitParse(parser.parse());
             if (manager.context.mutex.isLocked()) {
                 // write log
                 File logFile = new File("./" + manager.context.databaseName + "/.log");
@@ -33,9 +35,10 @@ public class SQLEvaluator {
                 writer.append(stmt).append('\n');
                 writer.close();
             }
-            return result;
+            return results;
         } catch (Exception e) {
-            return new SQLEvalResult(e);
+            //TODO
+            return null;
         }
     }
 }

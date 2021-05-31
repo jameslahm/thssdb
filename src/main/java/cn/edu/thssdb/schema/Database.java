@@ -49,12 +49,17 @@ public class Database {
     });
     tables.clear();
   }
-
-  public String select(QueryTable[] queryTables) {
-    // TODO
-    QueryResult queryResult = new QueryResult(queryTables);
-    return null;
+  public void deleteTable(String table_name){
+    if(tables.containsKey(table_name)){
+      tables.get(table_name).drop();
+      tables.remove(table_name);
+    }
   }
+//  public String select(QueryTable[] queryTables) {
+//    // TODO
+//    QueryResult queryResult = new QueryResult(queryTables);
+//    return null;
+//  }
 
   private String getMetaPath(){
     return Paths.get(Global.DATA_FOLDER,name+".meta").toString();
@@ -72,5 +77,14 @@ public class Database {
   public void quit() {
     // TODO
     persist();
+  }
+  public HashMap<String,Table> getTables() {return tables;}
+  public Table getTableByName(String table_name) {
+    if (this.tables.containsKey(table_name))
+      return this.tables.get(table_name);
+    else{
+      //TODO
+      throw new RuntimeException();
+    }
   }
 }

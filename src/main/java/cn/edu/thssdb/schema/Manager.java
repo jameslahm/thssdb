@@ -38,7 +38,7 @@ public class Manager {
     }
   }
 
-  private void createDatabaseIfNotExists(String databaseName) {
+  public void createDatabaseIfNotExists(String databaseName) {
     // TODO
     if (databases.containsKey(databaseName)) {
       return;
@@ -48,7 +48,7 @@ public class Manager {
     }
   }
 
-  private void deleteDatabase(String databaseName) {
+  public void deleteDatabase(String databaseName) {
     // TODO
     if(databases.containsKey(databaseName)){
       Database database = databases.get(databaseName);
@@ -63,6 +63,7 @@ public class Manager {
     onlineDatabase.put(databaseName,clientNum+1);
   }
 
+  public HashMap<String,Database> getDatabases(){return this.databases;}
   private static class ManagerHolder {
     private static final Manager INSTANCE = new Manager();
     private ManagerHolder() {

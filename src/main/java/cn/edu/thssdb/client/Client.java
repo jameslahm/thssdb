@@ -2,6 +2,12 @@ package cn.edu.thssdb.client;
 
 import cn.edu.thssdb.rpc.thrift.GetTimeReq;
 import cn.edu.thssdb.rpc.thrift.IService;
+import cn.edu.thssdb.rpc.thrift.ConnectReq;
+import cn.edu.thssdb.rpc.thrift.ConnectResp;
+import cn.edu.thssdb.rpc.thrift.DisconnectReq;
+import cn.edu.thssdb.rpc.thrift.DisconnectResp;
+import cn.edu.thssdb.rpc.thrift.ExecuteStatementReq;
+import cn.edu.thssdb.rpc.thrift.ExecuteStatementResp;
 import cn.edu.thssdb.utils.Global;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -200,10 +206,10 @@ public class Client {
         else {
           for(String item : the_response.columnsList) {
             item = item.trim();
-            if(item.equals("start transaction")) {
+            if(item.equalsIgnoreCase("start transaction")) {
               Tmod = "(T)";
             }
-            else if(item.equals("commit transaction"))
+            else if(item.equalsIgnoreCase("commit transaction"))
             {
               Tmod = "";
             }

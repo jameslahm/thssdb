@@ -9,23 +9,13 @@ import java.util.List;
 
 public class QueryResult {
 
-  private List<MetaInfo> metaInfoInfos;
-  private List<Integer> index;
+  private List<Row> rows;
   private List<Cell> attrs;
 
-  public QueryResult(QueryTable[] queryTables) {
+  public QueryResult(List<Row> rows,List<Cell> attrs) {
     // TODO
-    this.index = new ArrayList<>();
-    this.attrs = new ArrayList<>();
+    this.rows = rows;
+    this.attrs = attrs;
   }
 
-  public static Row combineRow(LinkedList<Row> rows) {
-    // TODO
-    return null;
-  }
-
-  public Row generateQueryRecord(Row row) {
-    // TODO
-    return null;
-  }
 }

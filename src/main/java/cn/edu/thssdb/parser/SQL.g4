@@ -68,7 +68,7 @@ quit_stmt :
     K_QUIT;
 
 show_table_stmt :
-    K_SHOW K_DATABASE database_name;
+    K_SHOW K_TABLES;
 
 insert_stmt :
     K_INSERT K_INTO table_name ( '(' column_name ( ',' column_name )* ')' )?
@@ -136,7 +136,9 @@ result_column
 
 table_query :
     table_name
-    | table_name ( K_JOIN table_name )+ K_ON multiple_condition ;
+    | table_query K_NATURAL ( K_INNER )? K_JOIN table_name
+    | table_query ( K_INNER )? K_JOIN table_name K_ON multiple_condition
+    | table_query ( K_LEFT | K_RIGHT | K_FULL ) ( K_OUTER )? K_JOIN table_name K_ON multiple_condition;
 
 auth_level :
     K_SELECT | K_INSERT | K_UPDATE | K_DELETE | K_DROP ;
@@ -201,19 +203,25 @@ K_DISTINCT : D I S T I N C T;
 K_DROP : D R O P;
 K_EXISTS : E X I S T S;
 K_FROM : F R O M;
+K_FULL: F U L L;
 K_GRANT : G R A N T;
 K_IF : I F;
 K_IDENTIFIED : I D E N T I F I E D;
+K_INNER : I N N E R;
 K_INSERT : I N S E R T;
 K_INTO : I N T O;
 K_JOIN : J O I N;
 K_KEY : K E Y;
+K_LEFT: L E F T;
+K_NATURAL: N A T U R A L;
 K_NOT : N O T;
 K_NULL : N U L L;
 K_ON : O N;
+K_OUTER: O U T E R;
 K_PRIMARY : P R I M A R Y;
 K_QUIT : Q U I T;
 K_REVOKE : R E V O K E;
+K_RIGHT: R I G H T;
 K_SELECT : S E L E C T;
 K_SET : S E T;
 K_SHOW : S H O W;
@@ -225,7 +233,7 @@ K_USER : U S E R;
 K_VALUES : V A L U E S;
 K_VIEW : V I E W;
 K_WHERE : W H E R E;
-
+K_TABLES : T A B L E S;
 IDENTIFIER :
     [a-zA-Z_] [a-zA-Z_0-9]* ;
 

@@ -2,6 +2,7 @@ package cn.edu.thssdb.schema;
 
 import cn.edu.thssdb.exception.KeyNotExistException;
 import cn.edu.thssdb.index.BPlusTree;
+import cn.edu.thssdb.type.ColumnType;
 import cn.edu.thssdb.utils.Global;
 import cn.edu.thssdb.utils.Pair;
 import cn.edu.thssdb.utils.Persist;
@@ -119,6 +120,15 @@ public class Table implements Iterable<Row> {
   public String getDataFilePath(){
     String path = Paths.get(Global.DATA_FOLDER,databaseName,tableName+".data").toString();
     return path;
+  }
+
+  public int columnToIndex(String column_name){
+    for (int i = 0;i<columns.size();i++){
+      if (columns.get(i).getName().equalsIgnoreCase(column_name)){
+        return i;
+      }
+    }
+    return -1;
   }
 
   private void serialize() {
