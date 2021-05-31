@@ -3,6 +3,8 @@ package cn.edu.thssdb.utils;
 public class Global {
   public static int fanout = 129;
 
+  public static int SESSION_ID = 1;
+
   public static int SUCCESS_CODE = 0;
   public static int FAILURE_CODE = -1;
 

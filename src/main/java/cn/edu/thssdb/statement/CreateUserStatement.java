@@ -13,7 +13,7 @@ public class CreateUserStatement extends BaseStatement {
 
     @Override
     public SQLEvalResult exec(){
-        SessionManager.getInstance().create_user(username,password);
+        SessionManager.getInstance().createUser(username,password);
         return new SQLEvalResult();
     }
 

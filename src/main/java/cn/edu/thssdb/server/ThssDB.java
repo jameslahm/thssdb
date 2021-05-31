@@ -25,19 +25,23 @@ public class ThssDB {
   private static TServer server;
 
   private Manager manager;
-  private SQLEvaluator evaluator;
+
+
+  public Manager getManager() {
+    return manager;
+  }
+
+  public void setManager(Manager manager) {
+    this.manager = manager;
+  }
 
   public ThssDB() {
     manager = Manager.getInstance();
-    evaluator = new SQLEvaluator(manager);
   }
 
   public static ThssDB getInstance() {
     return ThssDBHolder.INSTANCE;
   }
-
-  public SQLEvaluator getEvaluator() { return evaluator; }
-
 
   public static void main(String[] args) {
     ThssDB server = ThssDB.getInstance();

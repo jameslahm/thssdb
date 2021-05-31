@@ -313,7 +313,7 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
             return new TableQuery(table_name);
         }
         else {
-            TableQuery left = (TableQuery) visit(ctx.table_query());
+            TableQuery left = (TableQuery) visit(ctx.getChild(0));
             String right_name = (String) visit(ctx.table_name());
             TableQuery right = new TableQuery(right_name);
             String join_type;

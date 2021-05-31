@@ -1,6 +1,7 @@
 package cn.edu.thssdb.parser;
 
 import cn.edu.thssdb.schema.Manager;
+import cn.edu.thssdb.schema.Session;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
@@ -11,23 +12,23 @@ import cn.edu.thssdb.statement.BaseStatement;
 
 public class SQLEvaluator {
     private Manager manager;
+    private Session session;
 
-    public SQLEvaluator(Manager manager) {
-        this.manager = manager;
+    public SQLEvaluator(Manager manager, Session session) {
+        this.manager = manager;this.session = session;
     }
 
     public ArrayList<BaseStatement> evaluate(String stmt){
         SQLLexer lexer = new SQLLexer(CharStreams.fromString(stmt));
         SQLParser parser = new SQLParser(new CommonTokenStream(lexer));
         //
-        manager.context.mutex.lock();
-        manager.context.mutex.unlock();
+        Manager.getMutex().writeLock().lock();
         try {
             SQLCustomVisitor visitor = new SQLCustomVisitor();
             ArrayList<BaseStatement> results = (ArrayList<BaseStatement>) visitor.visitParse(parser.parse());
-            if (manager.context.mutex.isLocked()) {
+            if (Manager.getMutex().isWriteLocked()) {
                 // write log
-                File logFile = new File("./" + manager.context.databaseName + "/.log");
+                File logFile = new File("./" + this.session.getCurrentDatabaseName() + "/.log");
                 if (!logFile.exists()) {
                     logFile.createNewFile();
                 }
@@ -37,8 +38,10 @@ public class SQLEvaluator {
             }
             return results;
         } catch (Exception e) {
-            //TODO
-            return null;
         }
+        finally {
+            Manager.getMutex().writeLock().unlock();
+        }
+        return null;
     }
 }

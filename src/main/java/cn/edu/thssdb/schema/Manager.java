@@ -12,11 +12,31 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Manager {
   private HashMap<String, Database> databases;
-  private static ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+  private static ReentrantReadWriteLock mutex = new ReentrantReadWriteLock();
   private HashMap<String,Integer> onlineDatabase;
 
   public static Manager getInstance() {
     return Manager.ManagerHolder.INSTANCE;
+  }
+
+  public void setDatabases(HashMap<String, Database> databases) {
+    this.databases = databases;
+  }
+
+  public static ReentrantReadWriteLock getMutex() {
+    return mutex;
+  }
+
+  public static void setMutex(ReentrantReadWriteLock mutex) {
+    Manager.mutex = mutex;
+  }
+
+  public HashMap<String, Integer> getOnlineDatabase() {
+    return onlineDatabase;
+  }
+
+  public void setOnlineDatabase(HashMap<String, Integer> onlineDatabase) {
+    this.onlineDatabase = onlineDatabase;
   }
 
   public Manager() {

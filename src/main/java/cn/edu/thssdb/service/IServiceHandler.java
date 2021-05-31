@@ -10,6 +10,7 @@ import cn.edu.thssdb.rpc.thrift.GetTimeReq;
 import cn.edu.thssdb.rpc.thrift.GetTimeResp;
 import cn.edu.thssdb.rpc.thrift.IService;
 import cn.edu.thssdb.rpc.thrift.Status;
+import cn.edu.thssdb.schema.SessionManager;
 import cn.edu.thssdb.statement.BaseStatement;
 import cn.edu.thssdb.utils.Global;
 import org.apache.thrift.TException;
@@ -21,6 +22,7 @@ import cn.edu.thssdb.server.ThssDB;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class IServiceHandler implements IService.Iface {
 
@@ -36,8 +38,10 @@ public class IServiceHandler implements IService.Iface {
   public ConnectResp connect(ConnectReq req) throws TException {
     // TODO
     ConnectResp resp = new ConnectResp();
-    resp.setSessionId(req.hashCode());
+    resp.setSessionId(Global.SESSION_ID);
+    SessionManager.getInstance().addSession(Global.SESSION_ID,"test");
     resp.setStatus(new Status(Global.SUCCESS_CODE));
+    Global.SESSION_ID ++;
     return resp;
   }
 
@@ -53,9 +57,10 @@ public class IServiceHandler implements IService.Iface {
   public ExecuteStatementResp executeStatement(ExecuteStatementReq req) throws TException {
     // TODO
     ExecuteStatementResp resp = new ExecuteStatementResp();
-    ArrayList<BaseStatement> stats = ThssDB.getInstance().getEvaluator().evaluate(req.statement);
-
-    ArrayList<SQLEvalResult> results;
+    SQLEvaluator evaluator = new SQLEvaluator(ThssDB.getInstance().getManager(),
+            SessionManager.getInstance().getSessionById(req.sessionId));
+    ArrayList<BaseStatement> stats = evaluator.evaluate(req.statement);
+    List<SQLEvalResult> results = stats.stream().map(BaseStatement::exec).collect(Collectors.toList());
     SQLEvalResult result = results.get(0);
     if (result.onError()) {
         resp.setHasResult(false);

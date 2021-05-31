@@ -57,14 +57,14 @@ public class Client {
   
   private static long session = -1;
 
-  public static boolean isLoclePortUsing(int port){
-    boolean flag = true;
-    try {
-      flag = isPortUsing("127.0.0.1", port);
-    } catch (Exception e) {
-    }
-    return flag;
-  }
+//  public static boolean isLoclePortUsing(int port){
+//    boolean flag = false;
+//    try {
+////      flag = isPortUsing("127.0.0.1", port);
+//    } catch (Exception e) {
+//    }
+//    return flag;
+//  }
 
   public static void main(String[] args) {
     commandLine = parseCmd(args);
@@ -207,11 +207,11 @@ public class Client {
           for(String item : the_response.columnsList) {
             item = item.trim();
             if(item.equalsIgnoreCase("start transaction")) {
-              Tmod = "(T)";
+//              Tmod = "(T)";
             }
             else if(item.equalsIgnoreCase("commit transaction"))
             {
-              Tmod = "";
+//              Tmod = "";
             }
             println(item);
           }

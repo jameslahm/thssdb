@@ -11,8 +11,8 @@ public class UseDatabaseStatement extends BaseStatement{
         this.database_name = database_name;
     }
 
-    public SQLEvalResult exec(int session_id){
-        SessionManager.getInstance().getSessionById(session_id).UseDatabase(String database_name);
+    public SQLEvalResult exec(int sessionId){
+        SessionManager.getInstance().getSessionById(sessionId).UseDatabase(database_name);
         return new SQLEvalResult();
     }
 }
