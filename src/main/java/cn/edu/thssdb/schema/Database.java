@@ -25,11 +25,12 @@ public class Database {
     recover();
   }
 
-  private void persist() {
+  public void persist() {
     // TODO
     tables.forEach((bleName,table)->{
       table.persist();
     });
+    Persist.fromDatabaseMetaToJson(new ArrayList<>(tables.keySet()),getMetaPath());
   }
 
   public void create(String name, Column[] columns) {
@@ -39,6 +40,14 @@ public class Database {
     } else {
       Table table = new Table(this.name,name,columns);
       tables.put(name,table);
+    }
+  }
+
+  public void delete(String name){
+    Table table =  tables.get(name);
+    if(table!=null){
+      table.drop();
+      tables.remove(name);
     }
   }
 

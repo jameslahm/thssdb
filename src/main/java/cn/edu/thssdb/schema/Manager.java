@@ -64,10 +64,16 @@ public class Manager {
   }
 
   public HashMap<String,Database> getDatabases(){return this.databases;}
+  public void persist(){
+    databases.forEach((databaseName,database)->{
+      database.persist();
+    });
+    Persist.fromManagerMetaToJson(new ArrayList<>(databases.keySet()),getMetaPath());
+  }
+
   private static class ManagerHolder {
     private static final Manager INSTANCE = new Manager();
     private ManagerHolder() {
-
     }
   }
 }
