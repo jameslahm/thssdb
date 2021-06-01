@@ -1,14 +1,12 @@
 package cn.edu.thssdb.index;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class BPlusTreeTest {
   private BPlusTree<Integer, Integer> tree;
@@ -16,7 +14,7 @@ public class BPlusTreeTest {
   private ArrayList<Integer> values;
   private HashMap<Integer, Integer> map;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     tree = new BPlusTree<>();
     keys = new ArrayList<>();
@@ -41,7 +39,7 @@ public class BPlusTreeTest {
   public void testGet() {
     for (Integer key : keys) {
       // check if all the results equal
-      assertEquals(map.get(key), tree.get(key));
+      Assertions.assertEquals(map.get(key), tree.get(key));
     }
   }
 
@@ -53,9 +51,9 @@ public class BPlusTreeTest {
       tree.remove(keys.get(i));
     }
     // check if size equals half of origin
-    assertEquals(size / 2, tree.size());
+    Assertions.assertEquals(size / 2, tree.size());
     for (int i = 1; i < size; i += 2) {
-      assertEquals(map.get(keys.get(i)), tree.get(keys.get(i)));
+      Assertions.assertEquals(map.get(keys.get(i)), tree.get(keys.get(i)));
     }
   }
 
@@ -64,9 +62,9 @@ public class BPlusTreeTest {
     BPlusTreeIterator<Integer, Integer> iterator = tree.iterator();
     int c = 0;
     while (iterator.hasNext()) {
-      assertTrue(values.contains(iterator.next().right));
+      Assertions.assertTrue(values.contains(iterator.next().right));
       c++;
     }
-    assertEquals(values.size(), c);
+    Assertions.assertEquals(values.size(), c);
   }
 }

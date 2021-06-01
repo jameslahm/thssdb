@@ -3,12 +3,10 @@ package cn.edu.thssdb.schema;
 
 import cn.edu.thssdb.type.ColumnType;
 import javafx.scene.control.Tab;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.ArrayList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
 
 public class TableTest {
     private Table table;
@@ -19,7 +17,7 @@ public class TableTest {
 
     private ArrayList<Column> columns;
 
-    @Before
+    @BeforeEach
     public void setUp(){
         databaseName = "course";
         tableName = "person";
@@ -49,7 +47,7 @@ public class TableTest {
         table.insert(row);
         Entry entry =  row.getEntries().get(0);
         Row res = table.get(entry);
-        assertEquals(res,row);
+        Assertions.assertEquals(res,row);
 
         table.delete(row);
     }
@@ -62,7 +60,7 @@ public class TableTest {
         table.delete(row);
         Entry entry =  row.getEntries().get(0);
         Row res = table.get(entry);
-        assertEquals(res,null);
+        Assertions.assertEquals(res,null);
     }
 
     @Test
@@ -75,10 +73,10 @@ public class TableTest {
         table.update(newRow,oldRow);
 
         Row res= table.get(newRow.getEntries().get(0));
-        assertEquals(res,newRow);
+        Assertions.assertEquals(res,newRow);
 
         res = table.get(oldRow.getEntries().get(0));
-        assertEquals(res,null);
+        Assertions.assertEquals(res,null);
 
         table.delete(newRow);
     }
@@ -94,7 +92,7 @@ public class TableTest {
         table.update(newRow,oldRow);
 
         Row res= table.get(newRow.getEntries().get(0));
-        assertEquals(res,newRow);
+        Assertions.assertEquals(res,newRow);
 
         table.delete(newRow);
     }
@@ -113,11 +111,11 @@ public class TableTest {
 
         newTable.recover();
         Row row2 = newTable.get(entry0);
-        assertEquals(row2.getEntries().get(0),entry0);
-        assertEquals(row2.getEntries().get(1).value,"alice");
+        Assertions.assertEquals(row2.getEntries().get(0),entry0);
+        Assertions.assertEquals(row2.getEntries().get(1).value,"alice");
 
         Row row3 = newTable.get(entry1);
-        assertEquals(row3.getEntries().get(0),entry1);
-        assertEquals(row3.getEntries().get(1).value,"bob");
+        Assertions.assertEquals(row3.getEntries().get(0),entry1);
+        Assertions.assertEquals(row3.getEntries().get(1).value,"bob");
     }
 }

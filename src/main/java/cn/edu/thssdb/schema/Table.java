@@ -79,6 +79,7 @@ public class Table implements Iterable<Row> {
   }
 
   public void persist(){
+    Persist.fromTableMetaToJson(columns,getMetaPath());
     serialize();
   }
 
