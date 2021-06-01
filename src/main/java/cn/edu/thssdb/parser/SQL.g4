@@ -40,26 +40,26 @@ drop_user_stmt :
     K_DROP K_USER ( K_IF K_EXISTS )? user_name ;
 
 create_table_stmt :
-    K_CREATE K_TABLE table_name
+    K_CREATE K_TABLE tableName
         '(' column_def ( ',' column_def )* ( ',' table_constraint )? ')' ;
 
 show_meta_stmt :
-    K_SHOW K_TABLE table_name ;
+    K_SHOW K_TABLE tableName ;
 
 grant_stmt :
-    K_GRANT auth_level ( ',' auth_level )* K_ON table_name K_TO user_name ;
+    K_GRANT auth_level ( ',' auth_level )* K_ON tableName K_TO user_name ;
 
 revoke_stmt :
-    K_REVOKE auth_level ( ',' auth_level )* K_ON table_name K_FROM user_name ;
+    K_REVOKE auth_level ( ',' auth_level )* K_ON tableName K_FROM user_name ;
 
 use_db_stmt :
     K_USE database_name;
 
 delete_stmt :
-    K_DELETE K_FROM table_name ( K_WHERE multiple_condition )? ;
+    K_DELETE K_FROM tableName ( K_WHERE multiple_condition )? ;
 
 drop_table_stmt :
-    K_DROP K_TABLE ( K_IF K_EXISTS )? table_name ;
+    K_DROP K_TABLE ( K_IF K_EXISTS )? tableName ;
 
 show_db_stmt :
     K_SHOW K_DATABASES;
@@ -71,7 +71,7 @@ show_table_stmt :
     K_SHOW K_TABLES;
 
 insert_stmt :
-    K_INSERT K_INTO table_name ( '(' column_name ( ',' column_name )* ')' )?
+    K_INSERT K_INTO tableName ( '(' column_name ( ',' column_name )* ')' )?
         K_VALUES value_entry ( ',' value_entry )* ;
 
 value_entry :
@@ -88,7 +88,7 @@ drop_view_stmt :
     K_DROP K_VIEW ( K_IF K_EXISTS )? view_name ;
 
 update_stmt :
-    K_UPDATE table_name
+    K_UPDATE tableName
         K_SET column_name '=' expression ( K_WHERE multiple_condition )? ;
 
 column_def :
@@ -131,14 +131,14 @@ table_constraint :
 
 result_column
     : '*'
-    | table_name '.' '*'
+    | tableName '.' '*'
     | column_full_name;
 
 table_query :
-    table_name
-    | table_query K_NATURAL ( K_INNER )? K_JOIN table_name
-    | table_query ( K_INNER )? K_JOIN table_name K_ON multiple_condition
-    | table_query ( K_LEFT | K_RIGHT | K_FULL ) ( K_OUTER )? K_JOIN table_name K_ON multiple_condition;
+    tableName
+    | table_query K_NATURAL ( K_INNER )? K_JOIN tableName
+    | table_query ( K_INNER )? K_JOIN tableName K_ON multiple_condition
+    | table_query ( K_LEFT | K_RIGHT | K_FULL ) ( K_OUTER )? K_JOIN tableName K_ON multiple_condition;
 
 auth_level :
     K_SELECT | K_INSERT | K_UPDATE | K_DELETE | K_DROP ;
@@ -149,12 +149,12 @@ literal_value :
     | K_NULL ;
 
 column_full_name:
-    ( table_name '.' )? column_name ;
+    ( tableName '.' )? column_name ;
 
 database_name :
     IDENTIFIER ;
 
-table_name :
+tableName :
     IDENTIFIER ;
 
 user_name :

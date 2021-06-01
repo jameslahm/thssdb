@@ -95,7 +95,6 @@ public class Persist {
             return gson.fromJson(json,array);
 
         } catch (IOException e) {
-            e.printStackTrace();
         }
         return new ArrayList<>();
     }

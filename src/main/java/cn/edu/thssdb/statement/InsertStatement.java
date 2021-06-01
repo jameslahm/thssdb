@@ -74,7 +74,7 @@ public class InsertStatement extends BaseStatement{
             }
 
             i++;
-            rows.add(new Row());
+            rows.add(new Row(entries));
         }
         for (Row row:rows){
             table.insert(row);

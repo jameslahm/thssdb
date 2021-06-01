@@ -82,6 +82,7 @@ public class SelectStatement extends BaseStatement{
 
     @Override
     public SQLEvalResult exec(){
+        this.generate_tables();
         int column_size = result_columns.size();
         boolean select_all = false;
         ArrayList<Row> select_rows = new ArrayList<>();
@@ -128,17 +129,16 @@ public class SelectStatement extends BaseStatement{
         Integer total_size = 1;
         for (int i =0;i<query_table_rows.size();i++){
             ArrayList<Row> rows = query_table_rows.get(i);
-            if (rows.size() == 0)
-                continue;
             query_table_sizes.add(rows.size());
             total_size *= rows.size();
         }
         for (int i = 0;i<tables.size();i++){
-            Table table = tables.get(i);
             if (table_locs.isEmpty())
-                table_locs.add(table.columns.size());
-            else
-                table_locs.add(table_locs.get(i-1) + table.columns.size());
+                table_locs.add(0);
+            else {
+                Table table = tables.get(i-1);
+                table_locs.add(table_locs.get(i - 1) + table.columns.size());
+            }
         }
 
         ArrayList<Integer> indexs = new ArrayList<>();
@@ -153,7 +153,7 @@ public class SelectStatement extends BaseStatement{
                 temp = temp / query_table_sizes.get(j);
             }
             Row row = cartesian_product(query_table_rows,indexs);
-            if(condition.evaluate(row,tables,table_locs)){
+            if(condition==null || condition.evaluate(row,tables,table_locs)){
                 if (select_all)
                     select_rows.add(row);
                 else {
@@ -163,7 +163,7 @@ public class SelectStatement extends BaseStatement{
                         Entry entry = row.getEntries().get(table_locs.get(pair.left) + pair.right);
                         entries.add(entry);
                     }
-                    select_rows.add(new Row( (Entry[]) entries.toArray()));
+                    select_rows.add(new Row(entries.toArray(new Entry[0])));
                 }
             }
         }

@@ -204,17 +204,18 @@ public class Client {
           }
         }
         else {
-          for(String item : the_response.columnsList) {
-            item = item.trim();
-            if(item.equalsIgnoreCase("start transaction")) {
-//              Tmod = "(T)";
-            }
-            else if(item.equalsIgnoreCase("commit transaction"))
-            {
-//              Tmod = "";
-            }
-            println(item);
-          }
+//          for(String item : the_response.columnsList) {
+//            item = item.trim();
+//            if(item.equalsIgnoreCase("start transaction")) {
+////              Tmod = "(T)";
+//            }
+//            else if(item.equalsIgnoreCase("commit transaction"))
+//            {
+////              Tmod = "";
+//            }
+//            println(item);
+//          }
+          println(the_response.getStatus().msg);
         }
       }
     } catch (TException e) {

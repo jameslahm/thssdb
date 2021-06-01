@@ -14,7 +14,6 @@ import cn.edu.thssdb.schema.Column;
 import cn.edu.thssdb.schema.Table;
 import cn.edu.thssdb.type.ColumnType;
 import cn.edu.thssdb.utils.Pair;
-import sun.swing.MenuItemLayoutHelper;
 
 public class SQLCustomVisitor extends SQLBaseVisitor {
     @Override

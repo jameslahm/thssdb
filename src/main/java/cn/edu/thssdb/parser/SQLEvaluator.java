@@ -26,16 +26,16 @@ public class SQLEvaluator {
         try {
             SQLCustomVisitor visitor = new SQLCustomVisitor();
             ArrayList<BaseStatement> results = (ArrayList<BaseStatement>) visitor.visitParse(parser.parse());
-            if (Manager.getMutex().isWriteLocked()) {
-                // write log
-                File logFile = new File("./" + this.session.getCurrentDatabaseName() + "/.log");
-                if (!logFile.exists()) {
-                    logFile.createNewFile();
-                }
-                FileWriter writer = new FileWriter(logFile);
-                writer.append(stmt).append('\n');
-                writer.close();
-            }
+//            if (Manager.getMutex().isWriteLocked()) {
+//                // write log
+//                File logFile = new File("./" + this.session.getCurrentDatabaseName() + ".log");
+//                if (!logFile.exists()) {
+//                    logFile.createNewFile();
+//                }
+//                FileWriter writer = new FileWriter(logFile);
+//                writer.append(stmt).append('\n');
+//                writer.close();
+//            }
             return results;
         } catch (Exception e) {
         }

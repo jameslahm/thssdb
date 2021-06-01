@@ -2,7 +2,6 @@ package cn.edu.thssdb.query;
 
 import cn.edu.thssdb.schema.Row;
 import cn.edu.thssdb.utils.Cell;
-import jdk.nashorn.internal.runtime.OptimisticReturnFilters;
 
 import java.awt.datatransfer.StringSelection;
 import java.util.ArrayList;

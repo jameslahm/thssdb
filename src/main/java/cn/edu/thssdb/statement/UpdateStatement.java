@@ -37,10 +37,10 @@ public class UpdateStatement extends BaseStatement{
         Iterator<Row> iter = table.iterator();
         while(iter.hasNext()){
             Row row = iter.next();
-            if (condition.evaluate(row,table)){
+            if (condition==null || condition.evaluate(row,table)){
                 ArrayList<Entry> entries = new ArrayList<>(row.getEntries());
                 entries.set(index, new Entry(ColumnType.convertDataType(table.columns.get(index).getType(),value.value)));
-                Row new_row = new Row((Entry[]) entries.toArray());
+                Row new_row = new Row(entries.toArray(new Entry[0]));
                 table.update(new_row,row);
             }
         }

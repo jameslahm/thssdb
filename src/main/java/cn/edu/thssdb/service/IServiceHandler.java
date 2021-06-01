@@ -10,6 +10,8 @@ import cn.edu.thssdb.rpc.thrift.GetTimeReq;
 import cn.edu.thssdb.rpc.thrift.GetTimeResp;
 import cn.edu.thssdb.rpc.thrift.IService;
 import cn.edu.thssdb.rpc.thrift.Status;
+import cn.edu.thssdb.schema.Manager;
+import cn.edu.thssdb.schema.Session;
 import cn.edu.thssdb.schema.SessionManager;
 import cn.edu.thssdb.statement.BaseStatement;
 import cn.edu.thssdb.utils.Global;
@@ -50,6 +52,10 @@ public class IServiceHandler implements IService.Iface {
     // TODO
     DisconnectResp resp = new DisconnectResp();
     resp.setStatus(new Status(Global.SUCCESS_CODE));
+
+    // Persist
+    ThssDB.getInstance().getManager().persist();
+
     return resp;
   }
 
@@ -57,10 +63,14 @@ public class IServiceHandler implements IService.Iface {
   public ExecuteStatementResp executeStatement(ExecuteStatementReq req) throws TException {
     // TODO
     ExecuteStatementResp resp = new ExecuteStatementResp();
-    SQLEvaluator evaluator = new SQLEvaluator(ThssDB.getInstance().getManager(),
-            SessionManager.getInstance().getSessionById(req.sessionId));
+    Session session = SessionManager.getInstance().getSessionById(req.sessionId);
+    SQLEvaluator evaluator = new SQLEvaluator(ThssDB.getInstance().getManager(),session);
     ArrayList<BaseStatement> stats = evaluator.evaluate(req.statement);
-    List<SQLEvalResult> results = stats.stream().map(BaseStatement::exec).collect(Collectors.toList());
+    List<SQLEvalResult> results = stats.stream().map((stat)-> {
+        stat.setSession(session);
+        return stat.exec();
+    }
+    ).collect(Collectors.toList());
     SQLEvalResult result = results.get(0);
     if (result.onError()) {
         resp.setHasResult(false);

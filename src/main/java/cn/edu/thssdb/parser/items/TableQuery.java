@@ -94,7 +94,7 @@ public class TableQuery {
         ArrayList<Entry> entries = new ArrayList<>();
         entries.addAll(left_row.getEntries());
         entries.addAll(right_row.getEntries());
-        return new Row((Entry[]) entries.toArray());
+        return new Row(entries.toArray(new Entry[0]));
     }
 
     public static Row combine_rows_wo_condition(ArrayList<Row> rows) {
@@ -102,7 +102,7 @@ public class TableQuery {
         for (Row row :rows){
             entries.addAll(row.getEntries());
         }
-        return new Row((Entry[]) entries.toArray());
+        return new Row(entries.toArray(new Entry[0]));
     }
 
     public ArrayList<Row> handle_join(){
@@ -162,7 +162,7 @@ public class TableQuery {
                         else
                             table_sizes.add(table_sizes.get(table_sizes.size()-1) + table.columns.size());
                     }
-                    if (on_condition.evaluate(combined, tables,table_sizes)) {
+                    if (on_condition==null || on_condition.evaluate(combined, tables,table_sizes)) {
                         rows.add(combined);
                         left_matched[i] = true;
                         right_matched[j] = true;
@@ -176,7 +176,7 @@ public class TableQuery {
                         ArrayList<Entry> entries = left_rows.get(i).getEntries();
                         for(int j =0;j<right_size;j++)
                             entries.add(null);
-                        rows.add(new Row((Entry[]) entries.toArray()));
+                        rows.add(new Row(entries.toArray(new Entry[0])));
                     }
                 }
             }
@@ -187,7 +187,7 @@ public class TableQuery {
                         ArrayList<Entry> entries = right_rows.get(i).getEntries();
                         for(int j =0;j<left_size;j++)
                             entries.add(null);
-                        rows.add(new Row((Entry[]) entries.toArray()));
+                        rows.add(new Row(entries.toArray(new Entry[0])));
                     }
                 }
             }

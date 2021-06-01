@@ -4,7 +4,6 @@ import cn.edu.thssdb.server.ThssDB;
 import cn.edu.thssdb.utils.Global;
 import cn.edu.thssdb.utils.Persist;
 
-import javax.xml.bind.annotation.XmlElementDecl;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,16 +26,8 @@ public class Manager {
     return mutex;
   }
 
-  public static void setMutex(ReentrantReadWriteLock mutex) {
-    Manager.mutex = mutex;
-  }
-
   public HashMap<String, Integer> getOnlineDatabase() {
     return onlineDatabase;
-  }
-
-  public void setOnlineDatabase(HashMap<String, Integer> onlineDatabase) {
-    this.onlineDatabase = onlineDatabase;
   }
 
   public Manager() {

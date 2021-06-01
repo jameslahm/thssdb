@@ -4,10 +4,15 @@ import cn.edu.thssdb.query.DatabasesInfo;
 import cn.edu.thssdb.query.QueryResult;
 import cn.edu.thssdb.query.TableInfo;
 import cn.edu.thssdb.rpc.thrift.Status;
+import cn.edu.thssdb.schema.Entry;
+import cn.edu.thssdb.schema.Row;
 import cn.edu.thssdb.schema.Table;
+import cn.edu.thssdb.utils.Cell;
 
+import java.io.LineNumberInputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SQLEvalResult {
     public String message;
@@ -19,7 +24,7 @@ public class SQLEvalResult {
     public SQLEvalResult() {
         this.error = null;
         this.queryResult = null;
-        this.message = null;
+        this.message = "ok";
     }
 
     public SQLEvalResult(Exception error) {
@@ -45,7 +50,13 @@ public class SQLEvalResult {
     }
 
     public void setTablesInfo(ArrayList<TableInfo> tablesInfo){
+        // transform table info to query result
         this.tablesInfo = tablesInfo;
+        List<Row> rows = tablesInfo.stream().map(tableInfo -> {
+            return new Row(List.of( new Entry(tableInfo.getTableName())).toArray(new Entry[0]));
+        }).collect(Collectors.toList());
+        List<Cell> attrs = List.of(new Cell("Tables"));
+        this.queryResult = new QueryResult(rows,attrs);
     }
 
     public void setShowMeta(boolean b){this.showMeta = b;}

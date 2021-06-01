@@ -26,6 +26,6 @@ public class Cell {
 
     @Override
     public String toString() {
-        return String.format("{%s: %s,%s: %s}", "value", value, "align", align.name());
+        return String.format("%-8s", this.value);
     }
 }
