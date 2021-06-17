@@ -2,7 +2,6 @@ package cn.edu.thssdb.parser;
 
 import cn.edu.thssdb.schema.*;
 import cn.edu.thssdb.statement.BaseStatement;
-import cn.edu.thssdb.type.ColumnType;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
