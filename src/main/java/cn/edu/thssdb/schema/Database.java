@@ -17,12 +17,23 @@ public class Database {
   private String name;
   private HashMap<String, Table> tables;
   ReentrantReadWriteLock lock;
+  private Logger logger;
+  private TransactionManager transactionManager;
+
 
   public Database(String name) {
     this.name = name;
     this.tables = new HashMap<>();
     this.lock = new ReentrantReadWriteLock();
     recover();
+  }
+
+  public Logger getLogger(){
+    return logger;
+  }
+
+  public TransactionManager getTransactionManager(){
+    return transactionManager;
   }
 
   public void persist() {

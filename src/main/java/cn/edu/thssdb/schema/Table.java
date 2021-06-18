@@ -23,7 +23,6 @@ public class Table implements Iterable<Row> {
   public ArrayList<Column> columns;
   public BPlusTree<Entry, Row> index;
   private int primaryIndex;
-
   public Table(String databaseName, String tableName, Column[] columns) {
     this.databaseName = databaseName;
     this.tableName = tableName;
