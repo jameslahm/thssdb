@@ -1,5 +1,6 @@
 package cn.edu.thssdb.parser.items;
 
+import cn.edu.thssdb.exception.BadComparerException;
 import cn.edu.thssdb.schema.Column;
 import cn.edu.thssdb.schema.Entry;
 import cn.edu.thssdb.schema.Row;
@@ -34,6 +35,10 @@ public class Condition {
         }
         else if(logic_op.equalsIgnoreCase("or")){
             this.logic_op = LogicType.OR;
+        }
+
+        if(comparator==null){
+            return;
         }
 
         if (comparator.equalsIgnoreCase("=")) this.comparator = CompareType.EQ;
@@ -83,8 +88,6 @@ public class Condition {
                 int index = table.columnToIndex(column_name);
                 ColumnType type = table.columns.get(index).getType();
                 Entry x = row.getEntries().get(index);
-                // TODO
-                //handle null
                 return CompareType.compare(ColumnType.convertDataType(type,left_value),x.value,comparator);
             }
         }
@@ -148,8 +151,7 @@ public class Condition {
                 Entry right_entry = row.getEntries().get(table_locs.get(pair.left) + pair.right);
                 Column right_column = table.columns.get(pair.right);
                 if (left_comparer.is_null && right_column.isNotNull()){
-                    //TODO
-                    throw new RuntimeException();
+                    throw new BadComparerException();
                 }
                 Comparable left_value = ColumnType.convertDataType(right_column.getType(),left);
                 return CompareType.compare(left_value,right_entry.value,comparator);
@@ -162,8 +164,7 @@ public class Condition {
             Column left_column = left_table.columns.get(left_pair.right);
             if (right_comparer.is_literal){
                 if (right_comparer.is_null && left_column.isNotNull()){
-                    //TODO
-                    throw new RuntimeException();
+                    throw new BadComparerException();
                 }
                 Comparable right_value = ColumnType.convertDataType(left_column.getType(),right);
                 return CompareType.compare(left_entry.value,right_value,comparator);

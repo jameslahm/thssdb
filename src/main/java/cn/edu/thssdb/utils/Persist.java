@@ -92,6 +92,7 @@ public class Persist {
     }
 
     public static void fromManagerMetaToJson(ArrayList<String> databaseNames, String path){
+        getOrCreateFile(path);
         Gson gson = new Gson();
         String json = gson.toJson(databaseNames);
         try {
@@ -115,6 +116,7 @@ public class Persist {
     }
 
     public static void fromDatabaseMetaToJson(ArrayList<String> tableNames, String path){
+        getOrCreateFile(path);
         Gson gson = new Gson();
         String json = gson.toJson(tableNames);
         try {
@@ -139,6 +141,7 @@ public class Persist {
     }
 
     public static void fromTableMetaToJson(ArrayList<Column> names, String path){
+        getOrCreateFile(path);
         Gson gson = new Gson();
         String json = gson.toJson(names);
         try {

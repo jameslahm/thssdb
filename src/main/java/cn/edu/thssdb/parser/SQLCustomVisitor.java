@@ -4,11 +4,14 @@ import cn.edu.thssdb.parser.items.Comparer;
 import cn.edu.thssdb.parser.items.Condition;
 import cn.edu.thssdb.parser.items.TableQuery;
 import cn.edu.thssdb.parser.items.ValueEntry;
+import cn.edu.thssdb.query.ColumnInfo;
 import javafx.scene.control.Tab;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import cn.edu.thssdb.statement.*;
 import cn.edu.thssdb.schema.Column;
 import cn.edu.thssdb.schema.Table;
@@ -99,7 +102,7 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
         List<SQLParser.Column_defContext> column_defs = ctx.column_def();
         ArrayList<String> primary_keys = new ArrayList<>();
         if(ctx.table_constraint()!= null){
-            primary_keys.addAll((ArrayList<String>) visit(ctx.table_constraint()));
+            primary_keys.addAll((List<String>) visit(ctx.table_constraint()));
         }
         ArrayList<Column> temp_columns = new ArrayList<>();
         for(int i = 0;i<column_defs.size();i++){
@@ -110,6 +113,7 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
             for (String primary_key:primary_keys){
                 if(column.getName().equalsIgnoreCase(primary_key)){
                     column.setPrimary(true);
+                    column.setNotNull(true);
                 }
             }
         }
@@ -118,13 +122,20 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
         }
         return new CreateTableStatement(table_name,columns);
     }
+
+    @Override
+    public Object visitTable_constraint(SQLParser.Table_constraintContext ctx){
+        List<String> columns = ctx.column_name().stream().map((nameCtx)->{
+            return nameCtx.IDENTIFIER().getText();
+        }).collect(Collectors.toList());
+        return columns;
+    }
+
     public Object visitShow_meta_stmt(SQLParser.Show_meta_stmtContext ctx){
         String table_name = (String) visit(ctx.getChild(2));
         return new ShowTableStatement(table_name);
     }
 
-    // TODO
-    // grant,revoke
 
     @Override
     public Object visitUse_db_stmt(SQLParser.Use_db_stmtContext ctx){
@@ -135,13 +146,29 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
     @Override
     public Object visitDelete_stmt(SQLParser.Delete_stmtContext ctx){
         String table_name = (String) visit(ctx.getChild(2));
-        if(ctx.getChildCount() == 3){
-            Condition cond = (Condition) visit(ctx.getChild(2));
+        if(ctx.getChildCount() > 3){
+            Condition cond = (Condition) visit(ctx.getChild(ctx.getChildCount()-1));
             return new DeleteStatement(table_name,cond);
         }
         else{
             return new DeleteStatement(table_name);
         }
+    }
+
+    @Override
+    public Object visitAlter_add_stmt(SQLParser.Alter_add_stmtContext ctx) {
+        String tableName = ctx.tableName().getText();
+        String columnName = ctx.column_name().getText();
+        Pair<ColumnType,Integer> p = (Pair<ColumnType, Integer>) visit(ctx.type_name());
+        Column column = new Column(columnName,p.left,false,false,p.right);
+        return new AlterAddStatement(tableName,column);
+    }
+
+    @Override
+    public Object visitAlter_drop_stmt(SQLParser.Alter_drop_stmtContext ctx) {
+        String tableName = ctx.tableName().getText();
+        String columnName = ctx.column_name().getText();
+        return new AlterDropStatement(tableName,columnName);
     }
 
     @Override
@@ -222,9 +249,6 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
             return new SelectStatement(result_columns, table_queries);
         }
     }
-
-    //TODO
-    //create_view,drop_view
 
     @Override
     public Object visitUpdate_stmt(SQLParser.Update_stmtContext ctx){
@@ -315,8 +339,6 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
             return visit(ctx.getChild(0));
         }
         else{
-            //TODO
-            //support expression,not only comparer
             return null;
         }
     }
@@ -357,8 +379,7 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
             return new TableQuery(left,right,join_type,condition);
         }
     }
-    // TODO
-    // auth_level
+
     @Override
     public Object visitLiteral_value(SQLParser.Literal_valueContext ctx){
         String value = ctx.getChild(0).getText();
@@ -375,7 +396,7 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
 
     @Override
     public Object visitColumn_full_name(SQLParser.Column_full_nameContext ctx){
-        return ctx.getChild(0).getText();
+        return ctx.getText();
     }
 
     @Override

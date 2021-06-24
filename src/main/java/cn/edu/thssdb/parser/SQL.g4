@@ -30,7 +30,15 @@ sql_stmt :
     | rollback_stmt
     | savepoint_stmt
     | begin_transaction_stmt
-    | checkpoint_stmt;
+    | checkpoint_stmt
+    | alter_add_stmt
+    | alter_drop_stmt ;
+
+alter_add_stmt:
+	K_ALTER K_TABLE tableName K_ADD column_name type_name;
+
+alter_drop_stmt:
+	K_ALTER K_TABLE tableName K_DROP K_COLUMN column_name;
 
 commit_stmt :
     K_COMMIT;
@@ -204,8 +212,8 @@ SUB : '-';
 MUL : '*';
 DIV : '/';
 
-AND : '&&';
-OR : '||';
+AND : A N D;
+OR : O R;
 
 T_INT : I N T;
 T_LONG : L O N G;
@@ -213,6 +221,7 @@ T_FLOAT : F L O A T;
 T_DOUBLE : D O U B L E;
 T_STRING : S T R I N G;
 
+K_ALTER : A L T E R;
 K_COMMIT : C O M M I T;
 K_ROLLBACK : R O L L B A C K;
 K_SAVEPOINT : S A V E P O I N T;

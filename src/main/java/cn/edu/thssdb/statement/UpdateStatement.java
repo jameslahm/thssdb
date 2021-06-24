@@ -1,5 +1,6 @@
 package cn.edu.thssdb.statement;
 
+import cn.edu.thssdb.exception.ColumnNotExistException;
 import cn.edu.thssdb.parser.SQLEvalResult;
 import cn.edu.thssdb.parser.items.Comparer;
 import cn.edu.thssdb.parser.items.Condition;
@@ -32,9 +33,7 @@ public class UpdateStatement extends BaseStatement{
         Table table = database.getTableByName(table_name);
         int index = table.columnToIndex(column_name);
         if (index == -1){
-            //TODO
-            //throw exception
-            return new SQLEvalResult();
+            throw new ColumnNotExistException();
         }
         Iterator<Row> iter = table.iterator();
         while(iter.hasNext()){

@@ -1,5 +1,6 @@
 package cn.edu.thssdb.schema;
 
+import cn.edu.thssdb.exception.TableNotExistException;
 import cn.edu.thssdb.query.QueryResult;
 import cn.edu.thssdb.query.QueryTable;
 import cn.edu.thssdb.statement.BaseStatement;
@@ -40,7 +41,6 @@ public class Database {
   }
 
   public void persist() {
-    // TODO
     tables.forEach((bleName,table)->{
       table.persist();
     });
@@ -48,7 +48,6 @@ public class Database {
   }
 
   public void create(String name, Column[] columns) {
-    // TODO
     if(tables.containsKey(name)){
       return;
     } else {
@@ -66,7 +65,6 @@ public class Database {
   }
 
   public void drop() {
-    // TODO
     tables.forEach((tableName,table)->{
       table.drop();
     });
@@ -78,18 +76,12 @@ public class Database {
       tables.remove(table_name);
     }
   }
-//  public String select(QueryTable[] queryTables) {
-//    // TODO
-//    QueryResult queryResult = new QueryResult(queryTables);
-//    return null;
-//  }
 
   private String getMetaPath(){
     return Paths.get(Global.DATA_FOLDER,name+".meta").toString();
   }
 
   private void recover() {
-    // TODO
     ArrayList<String> tableNames = Persist.fromJsonToDatabaseMeta(getMetaPath());
     for (String tableName:tableNames){
       Table table = new Table(name,tableName);
@@ -119,7 +111,6 @@ public class Database {
   }
 
   public void quit() {
-    // TODO
     persist();
   }
   public HashMap<String,Table> getTables() {return tables;}
@@ -127,8 +118,7 @@ public class Database {
     if (this.tables.containsKey(table_name))
       return this.tables.get(table_name);
     else{
-      //TODO
-      throw new RuntimeException();
+      throw new TableNotExistException();
     }
   }
 }

@@ -1,5 +1,7 @@
 package cn.edu.thssdb.type;
 
+import cn.edu.thssdb.exception.BadColumnTypeException;
+
 public enum ColumnType {
   INT, LONG, FLOAT, DOUBLE, STRING;
 
@@ -14,9 +16,7 @@ public enum ColumnType {
       return DOUBLE;
     if (str.equalsIgnoreCase("string"))
       return STRING;
-    //TODO
-    // should throw exception
-    return null;
+    throw new BadColumnTypeException();
   }
 
   public static String toString(ColumnType type){
@@ -25,9 +25,7 @@ public enum ColumnType {
     if (type == FLOAT) return "FLOAT";
     if (type == DOUBLE) return "DOUBLE";
     if (type == STRING) return "STRING";
-    // TODO
-    // should throw exception
-    return null;
+    throw new BadColumnTypeException();
   }
 
   public static Comparable convertDataType(ColumnType type, String value){

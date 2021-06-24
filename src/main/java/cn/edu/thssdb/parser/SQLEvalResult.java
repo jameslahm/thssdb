@@ -29,7 +29,7 @@ public class SQLEvalResult {
 
     public SQLEvalResult(Exception error) {
         this.error = error;
-        this.message = null;
+        this.message = error.getMessage();
         this.queryResult = null;
     }
 

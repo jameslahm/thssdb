@@ -152,15 +152,18 @@ public class TableQuery {
 
             for (int i =0;i<left_rows.size();i++) {
                 Row left = left_rows.get(i);
-                for (int j = 0;j<left_rows.size();j++) {
+                for (int j = 0;j<right_rows.size();j++) {
                     Row right = right_rows.get(j);
                     Row combined = combine_rows(left, right);
                     ArrayList<Integer> table_sizes = new ArrayList<>();
+                    Table last_table = null;
                     for (Table table:tables){
-                        if (table_sizes.isEmpty())
-                            table_sizes.add(table.columns.size());
+                        if (table_sizes.isEmpty()) {
+                            table_sizes.add(0);
+                        }
                         else
-                            table_sizes.add(table_sizes.get(table_sizes.size()-1) + table.columns.size());
+                            table_sizes.add(table_sizes.get(table_sizes.size()-1) + last_table.columns.size());
+                        last_table = table;
                     }
                     if (on_condition==null || on_condition.evaluate(combined, tables,table_sizes)) {
                         rows.add(combined);

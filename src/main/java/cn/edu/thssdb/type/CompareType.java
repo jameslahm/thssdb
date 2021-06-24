@@ -9,9 +9,9 @@ public enum CompareType {
     public static boolean compare(Comparable left_value,Comparable right_value,CompareType type){
         switch (type){
             case EQ:
-                return left_value == right_value;
+                return left_value.equals(right_value);
             case NE:
-                return left_value != right_value;
+                return !left_value.equals(right_value);
             case LT:
                 return (Double) left_value < (Double) right_value;
             case GT:

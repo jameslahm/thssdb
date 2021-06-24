@@ -4,8 +4,6 @@ import cn.edu.thssdb.parser.SQLEvalResult;
 import cn.edu.thssdb.statement.*;
 import cn.edu.thssdb.utils.Global;
 import cn.edu.thssdb.utils.Pair;
-
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;

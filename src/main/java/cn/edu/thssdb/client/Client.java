@@ -91,7 +91,7 @@ public class Client {
             break;
           case Global.QUIT:
             open = false;
-            break;
+            return;
           case Global.CONNECT:
             connect();
             break;
@@ -266,7 +266,6 @@ public class Client {
   }
 
   static void showHelp() {
-    // TODO
     println("To get the time: show time;");
     println("To connect: connect;");
     println("To disconnect: disconnect;");
