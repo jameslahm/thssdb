@@ -126,7 +126,7 @@ public class TransactionManager {
         else if (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.SERIALIZABLE){
             ArrayList<String> tableNames = statement.getTableNames();
             for (String tableName:tableNames){
-                getTableReadLock(tableName,session_id);
+                getTableWriteLock(tableName,session_id);
             }
             try {
                 result = statement.exec();
@@ -294,14 +294,19 @@ public class TransactionManager {
     private void getTableReadLock(String tableName,long session_id){
         Table table = database.getTableByName(tableName);
         ReentrantReadWriteLock.ReadLock readLock = table.lock.readLock();
-        readLock.lock();
-        sessionReadLocks.get(session_id).add(readLock);
+        ReentrantReadWriteLock.WriteLock writeLock = table.lock.writeLock();
+        if (! (sessionReadLocks.get(session_id).contains(readLock) || sessionWriteLocks.get(session_id).contains(writeLock))){
+            readLock.lock();
+            sessionReadLocks.get(session_id).add(readLock);
+        }
     }
     private void getTableWriteLock(String tableName,long session_id){
         Table table = database.getTableByName(tableName);
         ReentrantReadWriteLock.WriteLock writeLock = table.lock.writeLock();
-        writeLock.lock();
-        sessionWriteLocks.get(session_id).add(writeLock);
+        if (! sessionWriteLocks.get(session_id).contains(writeLock)){
+            writeLock.lock();
+            sessionWriteLocks.get(session_id).add(writeLock);
+        }
     }
     private void releaseTableReadLock(String tableName,long session_id){
         Table table = database.getTableByName(tableName);
