@@ -87,8 +87,6 @@ public class Condition {
                 int index = table.columnToIndex(column_name);
                 ColumnType type = table.columns.get(index).getType();
                 Entry x = row.getEntries().get(index);
-                // TODO
-                //handle null
                 return CompareType.compare(ColumnType.convertDataType(type,left_value),x.value,comparator);
             }
         }

@@ -1,5 +1,6 @@
 package cn.edu.thssdb.statement;
 
+import cn.edu.thssdb.exception.ColumnNotExistException;
 import cn.edu.thssdb.parser.SQLEvalResult;
 import cn.edu.thssdb.parser.items.Condition;
 import cn.edu.thssdb.parser.items.TableQuery;
@@ -75,9 +76,7 @@ public class SelectStatement extends BaseStatement{
                 }
             }
         }
-        // TODO
-        // throw exception
-        throw new RuntimeException();
+        throw new ColumnNotExistException();
     }
 
     @Override

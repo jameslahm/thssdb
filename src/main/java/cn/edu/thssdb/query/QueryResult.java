@@ -32,7 +32,11 @@ public class QueryResult {
   public List<List<String>> rowsToString(){
     List<List<String>> rowsString = this.rows.stream().map((row)->{
       return row.getEntries().stream().map((entry -> {
-        return entry.toString();
+        if(entry!=null){
+          return entry.toString();
+        } else {
+          return "null";
+        }
       })).collect(Collectors.toList());
     }).collect(Collectors.toList());
     return rowsString;

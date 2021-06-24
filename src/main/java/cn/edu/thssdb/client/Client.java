@@ -266,7 +266,6 @@ public class Client {
   }
 
   static void showHelp() {
-    // TODO
     println("To get the time: show time;");
     println("To connect: connect;");
     println("To disconnect: disconnect;");

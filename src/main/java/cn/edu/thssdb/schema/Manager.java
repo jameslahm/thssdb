@@ -12,7 +12,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class Manager {
   private HashMap<String, Database> databases;
   private static ReentrantReadWriteLock mutex = new ReentrantReadWriteLock();
-  private HashMap<String,Integer> onlineDatabase;
+  private HashMap<String,Integer> onlineDatabase = new HashMap<>();
 
   public static Manager getInstance() {
     return Manager.ManagerHolder.INSTANCE;

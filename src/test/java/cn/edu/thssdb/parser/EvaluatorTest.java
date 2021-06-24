@@ -45,6 +45,12 @@ public class EvaluatorTest {
                 "name string(256),primary key(id))";
         result = execSql(sql);
         Assertions.assertEquals(result.message,"ok");
+
+        sql = "create table yello (identifier int not null, "+
+                "name string(256),"+
+                "primary key(identifier))";
+        result = execSql(sql);
+        Assertions.assertEquals(result.message,"ok");
     }
 
     public SQLEvalResult execSql(String sql){
@@ -97,6 +103,14 @@ public class EvaluatorTest {
         sql = "insert into hi (id, age, name) values(2,3,'alice')";
         result = execSql(sql);
         Assertions.assertEquals(result.message,"ok");
+
+        sql = "insert into hi (id, age, name) values(3,4,'cindy')";
+        result = execSql(sql);
+        Assertions.assertEquals(result.message, "ok");
+
+        sql = "insert into yello (identifier, name) values(1,'alice')";
+        result = execSql(sql);
+        Assertions.assertEquals(result.message,"ok");
     }
 
     @Test
@@ -137,13 +151,50 @@ public class EvaluatorTest {
         Assertions.assertEquals(rows.get(0).get(0),"2");
         Assertions.assertEquals(rows.get(1).get(0),"2");
 
-        // select id, age, name from hello, hi on hello.name = hi.name
+        // select id, age, name from hello join hi on hello.name = hi.name
         sql = "select hello.id, hello.age, hello.name, hi.id from hello join hi on hello.name = hi.name";
         result = execSql(sql);
         rows = result.queryResult.rowsToString();
         Assertions.assertEquals(rows.size(),2);
         Assertions.assertEquals(rows.get(0).get(0),"1");
         Assertions.assertEquals(rows.get(0).get(2),"alice");
+
+        // select id, age, name from hello, hi where hello.name = hi.name
+        sql = "select hello.id, hello.age, hello.name, hi.id from hello, hi where hello.name = hi.name";
+        result = execSql(sql);
+        rows = result.queryResult.rowsToString();
+        Assertions.assertEquals(rows.size(),2);
+        Assertions.assertEquals(rows.get(0).get(0),"1");
+        Assertions.assertEquals(rows.get(0).get(2),"alice");
+
+        // select id, age, name from hello left outer join hi on hello.name = hi.name
+        sql = "select hello.id, hello.age, hello.name, hi.id from hello left outer join hi on hello.name = hi.name";
+        result = execSql(sql);
+        rows = result.queryResult.rowsToString();
+        Assertions.assertEquals(rows.size(),2);
+        Assertions.assertEquals(rows.get(0).get(0),"1");
+        Assertions.assertEquals(rows.get(0).get(2),"alice");
+
+        // select id, age, name from hello right outer join hi on hello.name = hi.name
+        sql = "select hello.id, hello.age, hello.name, hi.id from hello right outer join hi on hello.name = hi.name";
+        result = execSql(sql);
+        rows = result.queryResult.rowsToString();
+        Assertions.assertEquals(rows.size(),3);
+        Assertions.assertEquals(rows.get(0).get(0),"1");
+        Assertions.assertEquals(rows.get(0).get(2),"alice");
+
+        // select id, name from hello natural join yello
+        sql = "select hello.id, hello.age, hello.name, yello.identifier from hello natural join yello";
+        result = execSql(sql);
+        rows = result.queryResult.rowsToString();
+        Assertions.assertEquals(rows.size(),1);
+        Assertions.assertEquals(rows.get(0).get(0),"1");
+        Assertions.assertEquals(rows.get(0).get(2),"alice");
+
+        sql = "select hello.id from hello,hi,yello where hello.name = hi.name";
+        result = execSql(sql);
+        rows = result.queryResult.rowsToString();
+        Assertions.assertEquals(rows.size(),2);
     }
 
     @Test
