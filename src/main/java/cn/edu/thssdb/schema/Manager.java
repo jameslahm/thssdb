@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Manager {
-  private HashMap<String, Database> databases;
+  private HashMap<String, Database> databases = new HashMap<>();
   private static ReentrantReadWriteLock mutex = new ReentrantReadWriteLock();
   private HashMap<String,Integer> onlineDatabase = new HashMap<>();
 
@@ -33,6 +33,10 @@ public class Manager {
   public Manager() {
     this.databases = new HashMap<>();
     init();
+  }
+
+  public Database  getDatabaseByName(String databaseName){
+    return databases.get(databaseName);
   }
 
   private String getMetaPath(){
@@ -83,9 +87,9 @@ public class Manager {
     Persist.fromManagerMetaToJson(new ArrayList<>(databases.keySet()),getMetaPath());
   }
 
-  private static class ManagerHolder {
-    private static final Manager INSTANCE = new Manager();
-    private ManagerHolder() {
+  public static class ManagerHolder {
+    public static final Manager INSTANCE = new Manager();
+    public ManagerHolder() {
     }
   }
 }

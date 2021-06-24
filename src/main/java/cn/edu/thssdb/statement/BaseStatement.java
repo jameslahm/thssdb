@@ -15,6 +15,7 @@ public class BaseStatement implements Serializable {
     public void setSession(Session session){
         this.databaseName = session.getCurrentDatabaseName();
         this.database = Manager.getInstance().getDatabases().get(databaseName);
+        this.session_id = session.getSessionId();
     }
 
     public SQLEvalResult exec(){

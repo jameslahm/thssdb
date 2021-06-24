@@ -1,5 +1,6 @@
 package cn.edu.thssdb.service;
 
+import cn.edu.thssdb.exception.DatabaseNotExistException;
 import cn.edu.thssdb.rpc.thrift.ConnectReq;
 import cn.edu.thssdb.rpc.thrift.ConnectResp;
 import cn.edu.thssdb.rpc.thrift.DisconnectReq;
@@ -10,11 +11,13 @@ import cn.edu.thssdb.rpc.thrift.GetTimeReq;
 import cn.edu.thssdb.rpc.thrift.GetTimeResp;
 import cn.edu.thssdb.rpc.thrift.IService;
 import cn.edu.thssdb.rpc.thrift.Status;
+import cn.edu.thssdb.schema.Database;
 import cn.edu.thssdb.schema.Manager;
 import cn.edu.thssdb.schema.Session;
 import cn.edu.thssdb.schema.SessionManager;
 import cn.edu.thssdb.statement.BaseStatement;
 import cn.edu.thssdb.utils.Global;
+import cn.edu.thssdb.utils.Pair;
 import org.apache.thrift.TException;
 
 import cn.edu.thssdb.parser.SQLEvalResult;
@@ -41,7 +44,8 @@ public class IServiceHandler implements IService.Iface {
     Manager.getInstance().createDatabaseIfNotExists("test");
     ConnectResp resp = new ConnectResp();
     resp.setSessionId(Global.SESSION_ID);
-    SessionManager.getInstance().addSession(Global.SESSION_ID,"test");
+    Session session = new Session(Global.SESSION_ID,"test");
+    SessionManager.getInstance().addSession(session);
     resp.setStatus(new Status(Global.SUCCESS_CODE));
     Global.SESSION_ID ++;
     return resp;
@@ -66,7 +70,15 @@ public class IServiceHandler implements IService.Iface {
     ArrayList<BaseStatement> stats = evaluator.evaluate(req.statement);
     List<SQLEvalResult> results = stats.stream().map((stat)-> {
         stat.setSession(session);
-        return stat.exec();
+        Database database = Manager.getInstance().getDatabaseByName(session.getCurrentDatabaseName());
+        if (database==null){
+            SQLEvalResult result = new SQLEvalResult();
+            result.error = new DatabaseNotExistException();
+            return result;
+        } else {
+            Pair<SQLEvalResult,Boolean> p =  database.getTransactionManager().exec(stat);
+            return p.left;
+        }
     }
     ).collect(Collectors.toList());
     SQLEvalResult result = results.get(0);

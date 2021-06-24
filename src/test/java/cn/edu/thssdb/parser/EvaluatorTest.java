@@ -1,5 +1,6 @@
 package cn.edu.thssdb.parser;
 
+import cn.edu.thssdb.exception.DatabaseNotExistException;
 import cn.edu.thssdb.exception.PrimaryKeyEmptyException;
 import cn.edu.thssdb.schema.*;
 import cn.edu.thssdb.statement.BaseStatement;
@@ -27,6 +28,7 @@ public class EvaluatorTest {
     public void setUp(){
         manager = Manager.getInstance();
         session = new Session(1,currentDatabaseName);
+        SessionManager.getInstance().addSession(session);
         evaluator = new SQLEvaluator(manager,session);
         manager.createDatabaseIfNotExists(currentDatabaseName);
     }
@@ -54,6 +56,7 @@ public class EvaluatorTest {
     }
 
     public SQLEvalResult execSql(String sql){
+        System.out.println(sql);
         try {
             ArrayList<BaseStatement> stats = evaluator.evaluate(sql);
             List<SQLEvalResult> results = stats.stream().map((stat) -> {
@@ -77,7 +80,6 @@ public class EvaluatorTest {
             res = String.format("insert into %s (id, age, charge, salary, name) values" +
                     "(%d,%d,%f,%f,'%s')", currentTableName, id, age, charge, salary, name);
         }
-        System.out.println("Exec Sql: "+ res);
         return res;
     }
 
@@ -234,5 +236,34 @@ public class EvaluatorTest {
         result = execSql(sql);
         rows = result.queryResult.rowsToString();
         Assertions.assertEquals(rows.get(0).size(),5);
+    }
+
+    @Test
+    @Order(8)
+    public void testCreateDatabase(){
+        String sql = "create database course";
+        SQLEvalResult result = execSql(sql);
+        Assertions.assertEquals(result.message,"ok");
+
+        sql = "use course";
+        result = execSql(sql);
+        Assertions.assertEquals(result.message,"ok");
+    }
+
+    @Test
+    @Order(9)
+    public void testDropDatabase(){
+        String sql = "drop database course";
+        SQLEvalResult result = execSql(sql);
+        Assertions.assertEquals(result.message,"ok");
+
+        sql = "use test";
+        result = execSql(sql);
+        Assertions.assertEquals(result.message,"ok");
+
+        sql = "use course";
+        result = execSql(sql);
+        Assertions.assertTrue(result.error instanceof DatabaseNotExistException);
+
     }
 }

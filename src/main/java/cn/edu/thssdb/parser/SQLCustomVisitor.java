@@ -144,6 +144,16 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
     }
 
     @Override
+    public Object visitBegin_transaction_stmt(SQLParser.Begin_transaction_stmtContext ctx) {
+        return new BeginStatement();
+    }
+
+    @Override
+    public Object visitCheckpoint_stmt(SQLParser.Checkpoint_stmtContext ctx) {
+        return new CheckpointStatement();
+    }
+
+    @Override
     public Object visitDelete_stmt(SQLParser.Delete_stmtContext ctx){
         String table_name = (String) visit(ctx.getChild(2));
         if(ctx.getChildCount() > 3){

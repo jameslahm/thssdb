@@ -5,12 +5,10 @@ import cn.edu.thssdb.parser.SQLEvalResult;
 import cn.edu.thssdb.parser.items.Condition;
 import cn.edu.thssdb.parser.items.TableQuery;
 import cn.edu.thssdb.query.QueryResult;
-import cn.edu.thssdb.schema.Column;
-import cn.edu.thssdb.schema.Entry;
-import cn.edu.thssdb.schema.Row;
-import cn.edu.thssdb.schema.Table;
+import cn.edu.thssdb.schema.*;
 import cn.edu.thssdb.utils.Cell;
 import cn.edu.thssdb.utils.Pair;
+import javafx.scene.control.Tab;
 
 import java.util.ArrayList;
 
@@ -35,11 +33,19 @@ public class SelectStatement extends BaseStatement{
         this.tables = new ArrayList<>();
     }
 
+    @Override
+    public void setSession(Session session) {
+        super.setSession(session);
+        generate_tables();
+    }
+
     public void generate_tables(){
+        ArrayList<Table> tempTables = new ArrayList<>();
         for (TableQuery query:table_queries){
             ArrayList<Table> temp_tables = query.generateTables(this.database);
-            this.tables.addAll(temp_tables);
+            tempTables.addAll(temp_tables);
         }
+        this.tables = tempTables;
     }
 
     public static Row cartesian_product(ArrayList<ArrayList<Row>> table_rows, ArrayList<Integer> indexs)
@@ -114,6 +120,7 @@ public class SelectStatement extends BaseStatement{
             }
         }
 
+
         for(String name:result_columns){
             select_cells.add(new Cell(name));
         }
@@ -180,5 +187,6 @@ public class SelectStatement extends BaseStatement{
         }
         return tableNames;
     }
+
 
 }

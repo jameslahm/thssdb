@@ -13,11 +13,11 @@ public class UseDatabaseStatement extends BaseStatement{
         this.database_name = database_name;
     }
 
-    public SQLEvalResult exec(int sessionId){
+    public SQLEvalResult exec(){
         if(!Manager.getInstance().checkDatabaseExist(database_name)){
             throw new DatabaseNotExistException();
         };
-        SessionManager.getInstance().getSessionById(sessionId).UseDatabase(database_name);
+        SessionManager.getInstance().getSessionById(session_id).UseDatabase(database_name);
         return new SQLEvalResult();
     }
 }

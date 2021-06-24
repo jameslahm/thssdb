@@ -32,8 +32,7 @@ public class SessionManager {
         }
     }
 
-    public void addSession(long sessionId,String currentDatabaseName){
-        Session session = new Session(sessionId,currentDatabaseName);
-        sessionMap.put(sessionId,session);
+    public void addSession(Session session){
+        sessionMap.put(session.getSessionId(),session);
     }
 }

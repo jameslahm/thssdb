@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import cn.edu.thssdb.exception.TableAlreadyExistException;
 
 public class Database {
 
@@ -29,6 +30,7 @@ public class Database {
     this.tables = new HashMap<>();
     this.lock = new ReentrantReadWriteLock();
     this.logger = new Logger("./log/" + name + ".json");
+    this.transactionManager = new TransactionManager(this);
     recover();
   }
 
@@ -49,7 +51,7 @@ public class Database {
 
   public void create(String name, Column[] columns) {
     if(tables.containsKey(name)){
-      return;
+      throw new TableAlreadyExistException();
     } else {
       Table table = new Table(this.name,name,columns);
       tables.put(name,table);

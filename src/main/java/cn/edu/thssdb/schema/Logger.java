@@ -9,8 +9,8 @@ import java.util.ArrayList;
 public class Logger {
 
     private String path;
-    private ArrayList<BaseStatement> redoList;
-    private ArrayList<BaseStatement> undoList;
+    private ArrayList<BaseStatement> redoList = new ArrayList<>();
+    private ArrayList<BaseStatement> undoList = new ArrayList<>();
 
     public Logger(String path){
         this.path = path;
