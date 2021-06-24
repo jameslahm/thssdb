@@ -213,4 +213,26 @@ public class EvaluatorTest {
         List<List<String>> rows = result.queryResult.rowsToString();
         Assertions.assertEquals(rows.size(),1);
     }
+
+    @Test
+    @Order(7)
+    public void testAlter(){
+        String sql = "alter table hello add yes int";
+        SQLEvalResult result = execSql(sql);
+        Assertions.assertEquals(result.message,"ok");
+
+        sql = "select * from hello";
+        result = execSql(sql);
+        List<List<String>> rows = result.queryResult.rowsToString();
+        Assertions.assertEquals(rows.get(0).size(),6);
+
+        sql = "alter table hello drop column yes";
+        result = execSql(sql);
+        Assertions.assertEquals(result.message,"ok");
+
+        sql = "select * from hello";
+        result = execSql(sql);
+        rows = result.queryResult.rowsToString();
+        Assertions.assertEquals(rows.get(0).size(),5);
+    }
 }

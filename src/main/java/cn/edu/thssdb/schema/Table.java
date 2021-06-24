@@ -52,6 +52,29 @@ public class Table implements Iterable<Row> {
     recover();
   }
 
+  public void addColumn(Column column){
+    this.columns.add(column);
+    TableIterator iterator = new TableIterator(this);
+    while(iterator.hasNext()){
+      Row row = iterator.next();
+      row.getEntries().add(new Entry(null));
+    }
+  }
+
+  public void dropColumn(String columnName){
+    for(int i=0;i<columns.size();i++){
+      if(columns.get(i).getName().equals(columnName)){
+        columns.remove(i);
+        TableIterator iterator = new TableIterator(this);
+        while(iterator.hasNext()){
+          Row row = iterator.next();
+          row.getEntries().remove(i);
+        }
+        break;
+      }
+    }
+  }
+
   private String getMetaPath(){
     return Paths.get(Global.DATA_FOLDER,databaseName,tableName+".meta").toString();
   }

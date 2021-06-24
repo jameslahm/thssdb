@@ -4,6 +4,7 @@ import cn.edu.thssdb.parser.items.Comparer;
 import cn.edu.thssdb.parser.items.Condition;
 import cn.edu.thssdb.parser.items.TableQuery;
 import cn.edu.thssdb.parser.items.ValueEntry;
+import cn.edu.thssdb.query.ColumnInfo;
 import javafx.scene.control.Tab;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
@@ -154,6 +155,22 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
         else{
             return new DeleteStatement(table_name);
         }
+    }
+
+    @Override
+    public Object visitAlter_add_stmt(SQLParser.Alter_add_stmtContext ctx) {
+        String tableName = ctx.tableName().getText();
+        String columnName = ctx.column_name().getText();
+        Pair<ColumnType,Integer> p = (Pair<ColumnType, Integer>) visit(ctx.type_name());
+        Column column = new Column(columnName,p.left,false,false,p.right);
+        return new AlterAddStatement(tableName,column);
+    }
+
+    @Override
+    public Object visitAlter_drop_stmt(SQLParser.Alter_drop_stmtContext ctx) {
+        String tableName = ctx.tableName().getText();
+        String columnName = ctx.column_name().getText();
+        return new AlterDropStatement(tableName,columnName);
     }
 
     @Override
