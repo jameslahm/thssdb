@@ -143,7 +143,7 @@ public class EvaluatorTest {
         result = execSql(sql,session);
         Assertions.assertEquals(result.message, "ok");
 
-        sql = "insert into yello (identifier, name) values(1,'alice')";
+        sql = "insert into yello (identifier, name) values(1,'alice'),(2,'flank') ";
         result = execSql(sql,session);
         Assertions.assertEquals(result.message,"ok");
     }
@@ -229,7 +229,7 @@ public class EvaluatorTest {
         sql = "select hello.id from hello,hi,yello where hello.name = hi.name";
         result = execSql(sql, session);
         rows = result.queryResult.rowsToString();
-        Assertions.assertEquals(rows.size(),2);
+        Assertions.assertEquals(rows.size(),4);
     }
 
     @Test

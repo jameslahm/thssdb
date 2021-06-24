@@ -75,3 +75,6 @@ data/
 target/
 
 *.tar.gz
+
+log
+data
