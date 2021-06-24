@@ -2,6 +2,8 @@ package cn.edu.thssdb.schema;
 
 import cn.edu.thssdb.query.QueryResult;
 import cn.edu.thssdb.query.QueryTable;
+import cn.edu.thssdb.statement.BaseStatement;
+import cn.edu.thssdb.statement.CommitStatement;
 import cn.edu.thssdb.utils.Global;
 import cn.edu.thssdb.utils.Persist;
 import javafx.scene.control.Tab;
@@ -25,6 +27,7 @@ public class Database {
     this.name = name;
     this.tables = new HashMap<>();
     this.lock = new ReentrantReadWriteLock();
+    this.logger = new Logger("./log/" + name + ".json");
     recover();
   }
 
@@ -91,6 +94,27 @@ public class Database {
     for (String tableName:tableNames){
       Table table = new Table(name,tableName);
       tables.put(tableName,table);
+    }
+    logger.readLog();
+    ArrayList<BaseStatement> redoList = logger.getRedoList();
+    ArrayList<BaseStatement> undoList;
+    for (BaseStatement statement:redoList){
+      statement.exec();
+      if (statement instanceof CommitStatement){
+        undoList = logger.getUndoList();
+        for (int i = undoList.size() - 1;i >=0;i--){
+          if (undoList.get(i).session_id == statement.session_id){
+            undoList.remove(i);
+          }
+        }
+      }
+      else{
+        logger.getUndoList().add(statement);
+      }
+    }
+    undoList = logger.getUndoList();
+    for (BaseStatement statement:undoList){
+      statement.undo();
     }
   }
 

@@ -1,6 +1,7 @@
 package cn.edu.thssdb.utils;
 
 import cn.edu.thssdb.schema.Column;
+import cn.edu.thssdb.statement.BaseStatement;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -28,7 +29,21 @@ public class Persist {
             e.printStackTrace();
         }
     }
-
+    public static void serializeLog(String path, Iterator<BaseStatement> iterator){
+        File file = getOrCreateFile(path);
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(path);
+            ObjectOutputStream outputStream = new ObjectOutputStream(fileOutputStream);
+            while (iterator.hasNext()){
+                BaseStatement statement = iterator.next();
+                outputStream.writeObject(statement);
+            }
+            outputStream.close();
+            fileOutputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     public static void deleteFile(String path){
         try {
             Files.delete(Paths.get(path));

@@ -14,17 +14,21 @@ public class InsertStatement extends BaseStatement{
     private ArrayList<String> column_names;
     private ArrayList<ValueEntry> values;
     private String table_name;
+    private ArrayList<Row> insertedRows;
 
     public InsertStatement(String table_name,ArrayList<String> column_names,ArrayList<ValueEntry> values){
         this.table_name = table_name;
         this.column_names = column_names;
         this.values = values;
+        this.insertedRows = new ArrayList<>();
     }
 
     public InsertStatement(String table_name,ArrayList<ValueEntry> values){
         this.table_name = table_name;
         this.column_names = null;
         this.values = values;
+        this.insertedRows = new ArrayList<>();
+
     }
 
     @Override
@@ -77,8 +81,24 @@ public class InsertStatement extends BaseStatement{
             rows.add(new Row(entries));
         }
         for (Row row:rows){
+            insertedRows.add(row);
             table.insert(row);
         }
         return new SQLEvalResult();
+    }
+
+    @Override
+    public ArrayList<String> getTableNames(){
+        ArrayList<String> tables = new ArrayList<>();
+        tables.add(table_name);
+        return tables;
+    }
+
+    @Override
+    public void undo(){
+        Table table = database.getTableByName(table_name);
+        for (Row row:insertedRows){
+            table.delete(row);
+        }
     }
 }

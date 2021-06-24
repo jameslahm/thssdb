@@ -1,28 +1,45 @@
 package cn.edu.thssdb.schema;
 
-import cn.edu.thssdb.statement.BaseStatement;
+import cn.edu.thssdb.statement.*;
+import cn.edu.thssdb.utils.Persist;
 
 import java.io.*;
 import java.util.ArrayList;
 
 public class Logger {
+
     private String path;
-    private ArrayList<BaseStatement> redo_list;
-    private ArrayList<BaseStatement[]> undo_list;
+    private ArrayList<BaseStatement> redoList;
+    private ArrayList<BaseStatement> undoList;
 
     public Logger(String path){
         this.path = path;
     }
 
-    public void log_statement(BaseStatement statement){
-        return;
+    public ArrayList<BaseStatement> getRedoList() {
+        return redoList;
     }
 
-    public void write_log(){
-        return;
+    public ArrayList<BaseStatement> getUndoList() {
+        return undoList;
     }
 
-    public void read_log(){
-        return;
+    public void logStatement(BaseStatement statement){
+        if (statement instanceof DeleteStatement ||
+                statement instanceof UpdateStatement ||
+                statement instanceof InsertStatement || statement instanceof CommitStatement){
+            redoList.add(statement);
+        }
+    }
+    public void removeStatement(BaseStatement statement){
+        redoList.remove(statement);
+    }
+    public void writeLog(){
+        Persist.serializeLog(path,redoList.iterator());
+        this.redoList.clear();
+    }
+
+    public void readLog(){
+        this.redoList = Persist.deserialize(path);
     }
 };

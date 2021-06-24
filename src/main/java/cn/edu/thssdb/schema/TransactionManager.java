@@ -1,21 +1,35 @@
 package cn.edu.thssdb.schema;
 
+import cn.edu.thssdb.parser.SQLEvalResult;
 import cn.edu.thssdb.statement.*;
-import com.sun.org.apache.bcel.internal.generic.Select;
+import cn.edu.thssdb.utils.Global;
+import cn.edu.thssdb.utils.Pair;
 
-import java.sql.Savepoint;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+class SavePoint{
+    int position;
+    String name;
+
+    public SavePoint(int position,String name){
+        this.position = position;
+        this.name = name;
+    }
+
+}
+
 public class TransactionManager {
-    private ArrayList<Long> inTransactionSessions;
+    private HashMap<Long,ArrayList<BaseStatement>> inTransactionSessions;
     private SessionManager sessionManager;
     private Logger logger;
     private Database database;
     private HashMap<Long, LinkedList<ReentrantReadWriteLock.ReadLock>> sessionReadLocks;
     private HashMap<Long,LinkedList<ReentrantReadWriteLock.WriteLock>> sessionWriteLocks;
+    private HashMap<Long,ArrayList<SavePoint>> sessionSavepoints;
 
     public TransactionManager(Database database){
         this.database = database;
@@ -23,7 +37,7 @@ public class TransactionManager {
         this.sessionManager = SessionManager.getInstance();
         this.sessionReadLocks = new HashMap<>();
         this.sessionWriteLocks = new HashMap<>();
-        this.inTransactionSessions = new ArrayList<>();
+        this.inTransactionSessions = new HashMap<>();
     }
 
     public void setDatabase(Database database){
@@ -31,54 +45,280 @@ public class TransactionManager {
         this.logger = database.getLogger();
     }
 
-    public boolean exec(BaseStatement statement,long session_id){
+    public Pair<SQLEvalResult,Boolean> exec(BaseStatement statement, long session_id){
+        Pair<SQLEvalResult,Boolean> result;
         if (statement instanceof SelectStatement ||
-            statement instanceof ShowDatabaseStatement ||
-            statement instanceof ShowTablesStatement ||
-            statement instanceof ShowTableStatement)
+                statement instanceof ShowDatabaseStatement ||
+                statement instanceof ShowTablesStatement ||
+                statement instanceof ShowTableStatement)
         {
-            return execReadStatement(statement,session_id);
+            result = execReadStatement(statement,session_id);
         }
         else if (statement instanceof UpdateStatement || statement instanceof DeleteStatement
-        || statement instanceof  InsertStatement){
-            return execWriteStatement(statement,session_id);
+                || statement instanceof  InsertStatement || statement instanceof DropDatabaseStatement
+                || statement instanceof DropTableStatement){
+                result = execWriteStatement(statement,session_id);
         }
         else if (statement instanceof CommitStatement){
-            return CommitTransaction(statement,session_id);
+            result = CommitTransaction(statement,session_id);
         }
         else if (statement instanceof RollbackStatement){
-            return RollbackTransaction(statement,session_id);
+            result = RollbackTransaction(statement,session_id);
         }
         else if (statement instanceof SavepointStatement){
-            return SavepointTransaction(statement,session_id);
+            result = SavepointTransaction(statement,session_id);
         }
         else if (statement instanceof BeginStatement){
-            return BeginTransaction(statement,session_id);
+            result = BeginTransaction(statement,session_id);
         }
-        return false;
+        else if (statement instanceof CheckpointStatement){
+            result = CheckpointTransaction(statement,session_id);
+        }
+        else{
+            result = MetaTransaction(statement,session_id);
+        }
+
+        if (result.right != false){
+            inTransactionSessions.get(session_id).add(statement);
+            statement.session_id = session_id;
+            logger.logStatement(statement);
+        }
+        return result;
     }
 
-    public boolean execReadStatement(BaseStatement statement,long session_id){
-        return true;
+    public Pair<SQLEvalResult,Boolean> execReadStatement(BaseStatement statement, long session_id){
+        SQLEvalResult result = null;
+        // necessary because not all transaction start with begin transaction but also single statement
+        if (!this.inTransactionSessions.containsKey(session_id)){
+            this.inTransactionSessions.put(session_id,new ArrayList<>());
+        }
+        if (!this.sessionSavepoints.containsKey(session_id)){
+            this.sessionSavepoints.put(session_id,new ArrayList<>());
+        }
+        if (!this.sessionReadLocks.containsKey(session_id)){
+            this.sessionReadLocks.put(session_id,new LinkedList<>());
+        }
+        if (!this.sessionWriteLocks.containsKey(session_id)){
+            this.sessionWriteLocks.put(session_id,new LinkedList<>());
+        }
+//        if (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_UNCOMMITTED){
+//            try {
+//                result = statement.exec();
+//            } catch (Exception e){
+//                return new Pair<>(result,false);
+//            }
+//            return new Pair<>(result,true);
+//        }
+        if (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_UNCOMMITTED ||Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_COMMITTED){
+            ArrayList<String> tableNames = statement.getTableNames();
+            for (String tableName:tableNames){
+                getTableReadLock(tableName,session_id);
+            }
+            try{
+                result = statement.exec();
+            } catch(Exception e){
+                for (String tableName:tableNames){
+                    releaseTableReadLock(tableName,session_id);
+                }
+                return new Pair<>(result,false);
+            }
+            for (String tableName:tableNames){
+                releaseTableReadLock(tableName,session_id);
+            }
+            return new Pair<>(result,true);
+        }
+        else if (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.SERIALIZABLE){
+            ArrayList<String> tableNames = statement.getTableNames();
+            for (String tableName:tableNames){
+                getTableReadLock(tableName,session_id);
+            }
+            try {
+                result = statement.exec();
+            } catch (Exception e){
+//                for (String tableName:tableNames){
+//                    releaseTableReadLock(tableName);
+//                }
+                return new Pair<>(result,false);
+            }
+            return new Pair<>(result,true);
+        }
+        return new Pair<>(result,false);
     }
 
-    public boolean execWriteStatement(BaseStatement statement,long session_id){
-        return true;
+    public Pair<SQLEvalResult,Boolean> execWriteStatement(BaseStatement statement,long session_id){
+        // necessary because not all transaction start with begin transaction but also single statement
+        if (!this.inTransactionSessions.containsKey(session_id)){
+            this.inTransactionSessions.put(session_id,new ArrayList<>());
+        }
+        if (!this.sessionSavepoints.containsKey(session_id)){
+            this.sessionSavepoints.put(session_id,new ArrayList<>());
+        }
+        if (!this.sessionReadLocks.containsKey(session_id)){
+            this.sessionReadLocks.put(session_id,new LinkedList<>());
+        }
+        if (!this.sessionWriteLocks.containsKey(session_id)){
+            this.sessionWriteLocks.put(session_id,new LinkedList<>());
+        }
+
+        SQLEvalResult result = null;
+        ArrayList<String> tableNames = statement.getTableNames();
+        for(String tableName:tableNames) {
+            getTableWriteLock(tableName,session_id);
+        }
+        if (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_UNCOMMITTED){
+            try{
+                result = statement.exec();
+            } catch(Exception e){
+                for (String tableName:tableNames){
+                    releaseTableWriteLock(tableName,session_id);
+                }
+                return new Pair<>(result,false);
+            }
+            for (String tableName:tableNames){
+                releaseTableWriteLock(tableName,session_id);
+            }
+            return new Pair<>(result,true);
+        }
+        else if (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_COMMITTED ||
+            Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.SERIALIZABLE){
+            try{
+                result = statement.exec();
+            } catch(Exception e){
+                return new Pair<>(result,false);
+            }
+            return new Pair<>(result,true);
+        }
+        return new Pair<>(result,false);
     }
 
-    public boolean BeginTransaction(BaseStatement statement,long session_id){
-        return true;
+    public Pair<SQLEvalResult,Boolean> BeginTransaction(BaseStatement statement,long session_id){
+        if (!this.inTransactionSessions.containsKey(session_id)){
+            this.inTransactionSessions.put(session_id,new ArrayList<>());
+        }
+        if (!this.sessionSavepoints.containsKey(session_id)){
+            this.sessionSavepoints.put(session_id,new ArrayList<>());
+        }
+        if (!this.sessionReadLocks.containsKey(session_id)){
+            this.sessionReadLocks.put(session_id,new LinkedList<>());
+        }
+        if (!this.sessionWriteLocks.containsKey(session_id)){
+            this.sessionWriteLocks.put(session_id,new LinkedList<>());
+        }
+        return new Pair<>(null,true);
     }
 
-    public boolean CommitTransaction(BaseStatement statement,long session_id){
-        return true;
+    public Pair<SQLEvalResult,Boolean> CommitTransaction(BaseStatement statement,long session_id){
+        this.releaseTransactionLocks(session_id);
+        this.sessionReadLocks.remove(session_id);
+        this.sessionWriteLocks.remove(session_id);
+        this.inTransactionSessions.remove(session_id);
+        this.sessionSavepoints.remove(session_id);
+        return new Pair<>(null,true);
     }
 
-    public boolean RollbackTransaction(BaseStatement statement,long session_id){
-        return true;
+    public Pair<SQLEvalResult,Boolean> RollbackTransaction(BaseStatement statement,long session_id){
+        String savepoint_name = ((RollbackStatement) statement).getSavepoint_name();
+        ArrayList<SavePoint> savePoints = this.sessionSavepoints.get(session_id);
+        int rollback_pos = 0;
+
+        if (savepoint_name ==null){
+            rollback_pos = savePoints.remove(savePoints.size()-1).position;
+        }
+        else {
+            int savepoint_pos = -1;
+            for (int i =0;i<savePoints.size();i++){
+                if (savePoints.get(i).name.equals(savepoint_name)){
+                    savepoint_pos = i;
+                    rollback_pos = savePoints.get(i).position;
+                    break;
+                }
+            }
+            if (savepoint_pos != -1){
+                while (savePoints.size() > savepoint_pos){
+                    savePoints.remove(savePoints.size()-1);
+                }
+            }
+            else {
+                return new Pair<>(null,true);
+            }
+        }
+        ArrayList<BaseStatement> TransactionStatements = inTransactionSessions.get(session_id);
+        while (TransactionStatements.size() >= rollback_pos){
+            BaseStatement stat = TransactionStatements.remove(TransactionStatements.size()-1);
+            logger.removeStatement(stat);
+            stat.undo();
+        }
+        return new Pair<>(null,true);
     }
 
-    public boolean SavepointTransaction(BaseStatement statement,long session_id){
-        return true;
+    public Pair<SQLEvalResult,Boolean> SavepointTransaction(BaseStatement statement,long session_id){
+        if (this.sessionSavepoints.containsKey(session_id)){
+            ArrayList<SavePoint> savepoints = this.sessionSavepoints.get(session_id);
+            savepoints.add(new SavePoint(this.inTransactionSessions.get(session_id).size(),((SavepointStatement)statement).getSavepoint_name()));
+            return new Pair<>(null,true);
+        }
+        return new Pair<>(null,true);
     }
+
+    public Pair<SQLEvalResult,Boolean> CheckpointTransaction(BaseStatement statement,long session_id) {
+        for (long session : inTransactionSessions.keySet()){
+            CommitTransaction(new BaseStatement(),session);
+            BeginTransaction(new BaseStatement(),session);
+        }
+        database.persist();
+        logger.writeLog();
+        return new Pair<>(null,true);
+    }
+
+    public Pair<SQLEvalResult,Boolean> MetaTransaction(BaseStatement statement,long session_id){
+        SQLEvalResult result = null;
+        try{
+            result = statement.exec();
+        } catch (Exception e){
+            return new Pair<>(result,true);
+        }
+        return new Pair<>(result,true);
+    }
+
+    private void releaseTransactionLocks(Long session_id){
+        LinkedList<ReentrantReadWriteLock.ReadLock> readLocks = sessionReadLocks.get(session_id);
+        LinkedList<ReentrantReadWriteLock.WriteLock> writeLocks = sessionWriteLocks.get(session_id);
+        while (!readLocks.isEmpty()){
+            readLocks.remove().unlock();
+        }
+        while (!writeLocks.isEmpty()) {
+            writeLocks.remove().unlock();
+        }
+    }
+
+    private void getTableReadLock(String tableName,long session_id){
+        Table table = database.getTableByName(tableName);
+        ReentrantReadWriteLock.ReadLock readLock = table.lock.readLock();
+        readLock.lock();
+        sessionReadLocks.get(session_id).add(readLock);
+    }
+    private void getTableWriteLock(String tableName,long session_id){
+        Table table = database.getTableByName(tableName);
+        ReentrantReadWriteLock.WriteLock writeLock = table.lock.writeLock();
+        writeLock.lock();
+        sessionWriteLocks.get(session_id).add(writeLock);
+    }
+    private void releaseTableReadLock(String tableName,long session_id){
+        Table table = database.getTableByName(tableName);
+        ReentrantReadWriteLock.ReadLock readLock = table.lock.readLock();
+        LinkedList<ReentrantReadWriteLock.ReadLock> readLockList = sessionReadLocks.get(session_id);
+        if (readLockList.remove(readLock)){
+            readLock.unlock();
+        }
+    }
+    private void releaseTableWriteLock(String tableName,long session_id){
+        Table table = database.getTableByName(tableName);
+        ReentrantReadWriteLock.WriteLock writeLock = table.lock.writeLock();
+        LinkedList<ReentrantReadWriteLock.WriteLock> writeLockList = sessionWriteLocks.get(session_id);
+        if (writeLockList.remove(writeLock)){
+            writeLock.unlock();
+        }
+    }
+
 }
+

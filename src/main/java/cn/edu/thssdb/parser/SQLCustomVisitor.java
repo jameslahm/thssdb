@@ -228,7 +228,7 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
 
     @Override
     public Object visitUpdate_stmt(SQLParser.Update_stmtContext ctx){
-        String table_name = (String) visit(ctx.table_name());
+        String table_name = (String) visit(ctx.tableName());
         String column_name = (String) visit(ctx.column_name());
         Comparer value = (Comparer) visit(ctx.expression());
         Condition condition = (Condition) visit(ctx.multiple_condition());
@@ -334,7 +334,7 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
         }
         else {
             TableQuery left = (TableQuery) visit(ctx.getChild(0));
-            String right_name = (String) visit(ctx.table_name());
+            String right_name = (String) visit(ctx.tableName());
             TableQuery right = new TableQuery(right_name);
             String join_type;
             if (ctx.K_NATURAL() != null){
@@ -384,7 +384,7 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
     }
 
     @Override
-    public Object visitTable_name(SQLParser.Table_nameContext ctx){
+    public Object visitTableName(SQLParser.TableNameContext ctx){
         return ctx.getChild(0).getText();
     }
 

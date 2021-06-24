@@ -29,7 +29,8 @@ sql_stmt :
     | commit_stmt
     | rollback_stmt
     | savepoint_stmt
-    | begin_transaction_stmt;
+    | begin_transaction_stmt
+    | checkpoint_stmt;
 
 commit_stmt :
     K_COMMIT;
@@ -42,6 +43,9 @@ savepoint_stmt :
 
 begin_transaction_stmt :
     K_BEGIN K_TRANSACTION;
+
+checkpoint_stmt :
+    K_CHECKPOINT;
 
 create_db_stmt :
     K_CREATE K_DATABASE database_name ;
@@ -258,6 +262,8 @@ K_WHERE : W H E R E;
 K_TABLES : T A B L E S;
 K_BEGIN : B E G I N;
 K_TRANSACTION : T R A N S A C T I O N;
+K_CHECKPOINT : C H E C K P O I N T;
+
 IDENTIFIER :
     [a-zA-Z_] [a-zA-Z_0-9]* ;
 

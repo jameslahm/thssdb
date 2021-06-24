@@ -173,4 +173,13 @@ public class SelectStatement extends BaseStatement{
         return result;
     }
 
+    @Override
+    public ArrayList<String> getTableNames(){
+        ArrayList<String> tableNames = new ArrayList<>();
+        for (Table table:tables){
+            tableNames.add(table.tableName);
+        }
+        return tableNames;
+    }
+
 }
