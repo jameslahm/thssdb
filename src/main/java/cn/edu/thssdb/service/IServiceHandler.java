@@ -49,7 +49,6 @@ public class IServiceHandler implements IService.Iface {
 
   @Override
   public DisconnectResp disconnect(DisconnectReq req) throws TException {
-    // TODO
     DisconnectResp resp = new DisconnectResp();
     resp.setStatus(new Status(Global.SUCCESS_CODE));
 
@@ -61,7 +60,6 @@ public class IServiceHandler implements IService.Iface {
 
   @Override
   public ExecuteStatementResp executeStatement(ExecuteStatementReq req) throws TException {
-    // TODO
     ExecuteStatementResp resp = new ExecuteStatementResp();
     Session session = SessionManager.getInstance().getSessionById(req.sessionId);
     SQLEvaluator evaluator = new SQLEvaluator(ThssDB.getInstance().getManager(),session);

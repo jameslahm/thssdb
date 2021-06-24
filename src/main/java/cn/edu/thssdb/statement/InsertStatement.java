@@ -1,5 +1,7 @@
 package cn.edu.thssdb.statement;
 
+import cn.edu.thssdb.exception.ColumnNotNullException;
+import cn.edu.thssdb.exception.InsertColumnNotCorrException;
 import cn.edu.thssdb.exception.PrimaryKeyEmptyException;
 import cn.edu.thssdb.parser.SQLEvalResult;
 import cn.edu.thssdb.parser.items.ValueEntry;
@@ -54,18 +56,14 @@ public class InsertStatement extends BaseStatement{
             Entry[] entries = new Entry[column_names.size()];
             ValueEntry temp_values = values.get(i);
             if (temp_values.values.size() != column_names.size()){
-                // TODO
-                // throw exceptions
-                return new SQLEvalResult();
+                throw new InsertColumnNotCorrException();
             }
             for (int j = 0; j < column_names.size(); j++) {
                 Column column = table.columns.get(indexs.get(j));
                 ColumnType type = column.getType();
                 String value = temp_values.values.get(j);
                 if (value.equalsIgnoreCase("null") && (column.isNotNull() || column.isPrimary())) {
-                    // TODO
-                    // throw exceptions
-                    return new SQLEvalResult();
+                    throw new ColumnNotNullException();
                 } else {
                     Entry x = new Entry(ColumnType.convertDataType(type, value));
                     entries[j] = x;

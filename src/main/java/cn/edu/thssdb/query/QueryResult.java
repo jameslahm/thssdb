@@ -17,7 +17,6 @@ public class QueryResult {
   private List<Cell> attrs;
 
   public QueryResult(List<Row> rows,List<Cell> attrs) {
-    // TODO
     this.rows = rows;
     this.attrs = attrs;
   }

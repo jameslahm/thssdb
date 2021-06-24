@@ -31,7 +31,6 @@ public class Manager {
   }
 
   public Manager() {
-    // TODO
     this.databases = new HashMap<>();
     init();
   }
@@ -50,7 +49,6 @@ public class Manager {
   }
 
   public void createDatabaseIfNotExists(String databaseName) {
-    // TODO
     if (databases.containsKey(databaseName)) {
       return;
     } else {
@@ -59,8 +57,12 @@ public class Manager {
     }
   }
 
+  public boolean checkDatabaseExist(String databaseName){
+    return databases.containsKey(databaseName);
+  }
+
+
   public void deleteDatabase(String databaseName) {
-    // TODO
     if(databases.containsKey(databaseName)){
       Database database = databases.get(databaseName);
       database.drop();
@@ -69,7 +71,6 @@ public class Manager {
   }
 
   public void switchDatabase(String databaseName) {
-    // TODO
     Integer clientNum = onlineDatabase.get(databaseName);
     onlineDatabase.put(databaseName,clientNum+1);
   }

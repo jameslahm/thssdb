@@ -136,8 +136,6 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
         return new ShowTableStatement(table_name);
     }
 
-    // TODO
-    // grant,revoke
 
     @Override
     public Object visitUse_db_stmt(SQLParser.Use_db_stmtContext ctx){
@@ -252,9 +250,6 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
         }
     }
 
-    //TODO
-    //create_view,drop_view
-
     @Override
     public Object visitUpdate_stmt(SQLParser.Update_stmtContext ctx){
         String table_name = (String) visit(ctx.tableName());
@@ -344,8 +339,6 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
             return visit(ctx.getChild(0));
         }
         else{
-            //TODO
-            //support expression,not only comparer
             return null;
         }
     }
@@ -386,8 +379,7 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
             return new TableQuery(left,right,join_type,condition);
         }
     }
-    // TODO
-    // auth_level
+
     @Override
     public Object visitLiteral_value(SQLParser.Literal_valueContext ctx){
         String value = ctx.getChild(0).getText();

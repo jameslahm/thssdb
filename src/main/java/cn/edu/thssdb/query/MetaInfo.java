@@ -15,7 +15,6 @@ class MetaInfo {
   }
 
   int columnFind(String name) {
-    // TODO
     return 0;
   }
 }

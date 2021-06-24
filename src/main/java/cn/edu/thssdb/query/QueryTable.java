@@ -32,13 +32,11 @@ public class QueryTable implements Iterator<Row> {
   }
   @Override
   public boolean hasNext() {
-    // TODO
     return true;
   }
 
   @Override
   public Row next() {
-    // TODO
     return null;
   }
 }

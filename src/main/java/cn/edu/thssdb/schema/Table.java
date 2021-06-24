@@ -30,7 +30,6 @@ public class Table implements Iterable<Row> {
     this.index = new BPlusTree<>();
     initPrimaryIndex();
     this.lock = new ReentrantReadWriteLock();
-    // TODO recover
   }
 
   public void initPrimaryIndex(){
