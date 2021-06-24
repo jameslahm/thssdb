@@ -94,19 +94,21 @@ public class Database {
     ArrayList<BaseStatement> undoList;
     for (BaseStatement statement:redoList){
       statement.exec();
-      if (statement instanceof CommitStatement){
-        undoList = logger.getUndoList();
-        for (int i = undoList.size() - 1;i >=0;i--){
-          if (undoList.get(i).session_id == statement.session_id){
-            undoList.remove(i);
+    }
+    undoList = logger.getUndoList();
+    for (int i = redoList.size() -1;i>=0;i--){
+      if (redoList.get(i) instanceof CommitStatement){
+        BaseStatement commitStat = redoList.get(i);
+        for (int j = i;j >=0;j--){
+          if (redoList.get(j).session_id == commitStat.session_id){
+            redoList.remove(j);
           }
         }
       }
       else{
-        logger.getUndoList().add(statement);
+        undoList.add(redoList.get(i));
       }
     }
-    undoList = logger.getUndoList();
     for (BaseStatement statement:undoList){
       statement.undo();
     }
