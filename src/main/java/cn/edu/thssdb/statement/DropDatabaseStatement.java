@@ -24,7 +24,7 @@ public class DropDatabaseStatement extends BaseStatement{
     public ArrayList<String> getTableNames(){
         ArrayList<String> tableNames = new ArrayList<>();
         Database database = Manager.getInstance().getDatabases().get(database_name);
-        HashMap<String, Table> tables = database.getTables();
+        HashMap<String, Table> tables =getDatabase().getTables();
         for (String table:tables.keySet()){
             tableNames.add(table);
         }

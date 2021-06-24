@@ -30,7 +30,7 @@ public class UpdateStatement extends BaseStatement{
 
     @Override
     public SQLEvalResult exec(){
-        Table table = database.getTableByName(table_name);
+        Table table = getDatabase().getTableByName(table_name);
         int index = table.columnToIndex(column_name);
         if (index == -1){
             throw new ColumnNotExistException();
@@ -58,7 +58,7 @@ public class UpdateStatement extends BaseStatement{
 
     @Override
     public void undo(){
-        Table table = database.getTableByName(table_name);
+        Table table =getDatabase().getTableByName(table_name);
         for (int i = updatedRowPairs.size() -1;i >= 0;i--){
             table.update(updatedRowPairs.get(i).left,updatedRowPairs.get(i).right);
         }

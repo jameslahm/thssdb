@@ -86,6 +86,7 @@ public class TransactionManager {
             statement.session_id = session_id;
             logger.logStatement(statement);
         }
+        logger.writeLog();
         return result;
     }
 
@@ -265,7 +266,6 @@ public class TransactionManager {
             BeginTransaction(new BaseStatement(),session);
         }
         database.persist();
-        logger.writeLog();
         return new Pair<>(new SQLEvalResult(),true);
     }
 

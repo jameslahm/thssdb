@@ -16,7 +16,7 @@ public class ShowTableStatement extends BaseStatement{
 
     @Override
     public SQLEvalResult exec(){
-        Table table = database.getTableByName(table_name);
+        Table table = getDatabase().getTableByName(table_name);
         SQLEvalResult result = new SQLEvalResult();
         ArrayList<TableInfo> tableInfos = new ArrayList<>();
         tableInfos.add(new TableInfo(table));

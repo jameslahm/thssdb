@@ -42,7 +42,7 @@ public class SelectStatement extends BaseStatement{
     public void generate_tables(){
         ArrayList<Table> tempTables = new ArrayList<>();
         for (TableQuery query:table_queries){
-            ArrayList<Table> temp_tables = query.generateTables(this.database);
+            ArrayList<Table> temp_tables = query.generateTables(this.getDatabase());
             tempTables.addAll(temp_tables);
         }
         this.tables = tempTables;

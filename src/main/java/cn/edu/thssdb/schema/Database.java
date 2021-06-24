@@ -21,7 +21,7 @@ public class Database {
   private String name;
   private HashMap<String, Table> tables;
   ReentrantReadWriteLock lock;
-  private Logger logger;
+  public Logger logger;
   private TransactionManager transactionManager;
 
 
@@ -31,7 +31,6 @@ public class Database {
     this.lock = new ReentrantReadWriteLock();
     this.logger = new Logger("./log/" + name + ".json");
     this.transactionManager = new TransactionManager(this);
-    recover();
   }
 
   public Logger getLogger(){
@@ -47,6 +46,8 @@ public class Database {
       table.persist();
     });
     Persist.fromDatabaseMetaToJson(new ArrayList<>(tables.keySet()),getMetaPath());
+    logger.redoList.clear();
+    logger.writeLog();
   }
 
   public void create(String name, Column[] columns) {
@@ -83,7 +84,7 @@ public class Database {
     return Paths.get(Global.DATA_FOLDER,name+".meta").toString();
   }
 
-  private void recover() {
+  public void recover() {
     ArrayList<String> tableNames = Persist.fromJsonToDatabaseMeta(getMetaPath());
     for (String tableName:tableNames){
       Table table = new Table(name,tableName);

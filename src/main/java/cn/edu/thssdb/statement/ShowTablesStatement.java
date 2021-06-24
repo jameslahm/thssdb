@@ -13,7 +13,7 @@ public class ShowTablesStatement extends BaseStatement{
 
     @Override
     public SQLEvalResult exec(){
-        HashMap<String, Table> tables = database.getTables();
+        HashMap<String, Table> tables = getDatabase().getTables();
         ArrayList<TableInfo> table_infos = new ArrayList<>();
         for(Table table:tables.values()){
             table_infos.add(new TableInfo(table));

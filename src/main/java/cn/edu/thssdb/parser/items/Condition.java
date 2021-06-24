@@ -11,9 +11,10 @@ import cn.edu.thssdb.type.CompareType;
 import cn.edu.thssdb.type.LogicType;
 import cn.edu.thssdb.utils.Pair;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Condition {
+public class Condition implements Serializable {
     Condition left_cond;
     Condition right_cond;
     LogicType logic_op;

@@ -32,7 +32,6 @@ public class Manager {
 
   public Manager() {
     this.databases = new HashMap<>();
-    init();
   }
 
   public Database  getDatabaseByName(String databaseName){
@@ -43,11 +42,12 @@ public class Manager {
     return Paths.get(Global.DATA_FOLDER,"manager.meta").toString();
   }
 
-  private void init(){
+  public void init(){
     ArrayList<String> databaseNames = Persist.fromJsonToManagerMeta(getMetaPath());
     for (String databaseName:databaseNames){
       Database database = new Database(databaseName);
       databases.put(databaseName,database);
+      database.recover();
       onlineDatabase.put(databaseName,0);
     }
   }

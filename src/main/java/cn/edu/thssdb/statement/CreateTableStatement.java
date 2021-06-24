@@ -13,7 +13,7 @@ public class CreateTableStatement extends BaseStatement {
     }
     @Override
     public SQLEvalResult exec(){
-        this.database.create(table_name,columns);
+        this.getDatabase().create(table_name,columns);
         return new SQLEvalResult();
     }
 

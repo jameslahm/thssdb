@@ -36,7 +36,7 @@ public class InsertStatement extends BaseStatement{
 
     @Override
     public SQLEvalResult exec(){
-        Table table = database.getTableByName(table_name);
+        Table table = getDatabase().getTableByName(table_name);
         int i = 0;
         ArrayList<Integer> indexs = new ArrayList<Integer>();
         ArrayList<Row> rows = new ArrayList<>();
@@ -93,7 +93,7 @@ public class InsertStatement extends BaseStatement{
 
     @Override
     public void undo(){
-        Table table = database.getTableByName(table_name);
+        Table table = getDatabase().getTableByName(table_name);
         for (Row row:insertedRows){
             table.delete(row);
         }

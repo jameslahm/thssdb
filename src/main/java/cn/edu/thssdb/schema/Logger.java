@@ -9,8 +9,8 @@ import java.util.ArrayList;
 public class Logger {
 
     private String path;
-    private ArrayList<BaseStatement> redoList = new ArrayList<>();
-    private ArrayList<BaseStatement> undoList = new ArrayList<>();
+    public ArrayList<BaseStatement> redoList = new ArrayList<>();
+    public ArrayList<BaseStatement> undoList = new ArrayList<>();
 
     public Logger(String path){
         this.path = path;
@@ -36,7 +36,6 @@ public class Logger {
     }
     public void writeLog(){
         Persist.serializeLog(path,redoList.iterator());
-        this.redoList.clear();
     }
 
     public void readLog(){

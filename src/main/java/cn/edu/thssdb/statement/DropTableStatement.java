@@ -13,7 +13,7 @@ public class DropTableStatement extends BaseStatement{
 
     @Override
     public SQLEvalResult exec(){
-        this.database.deleteTable(table_name);
+        this.getDatabase().deleteTable(table_name);
         return new SQLEvalResult();
     }
 

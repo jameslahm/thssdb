@@ -37,6 +37,7 @@ public class ThssDB {
 
   public ThssDB() {
     manager = Manager.getInstance();
+    manager.init();
   }
 
   public static ThssDB getInstance() {

@@ -27,7 +27,7 @@ public class DeleteStatement extends BaseStatement{
 
     @Override
     public SQLEvalResult exec(){
-        Table table = database.getTableByName(table_name);
+        Table table = getDatabase().getTableByName(table_name);
         Iterator<Row> iter = table.iterator();
         if (this.condition == null){
             while(iter.hasNext()){
@@ -57,7 +57,7 @@ public class DeleteStatement extends BaseStatement{
 
     @Override
     public void undo(){
-        Table table = database.getTableByName(table_name);
+        Table table = getDatabase().getTableByName(table_name);
         for (Row row:deletedRows){
             table.insert(row);
         }

@@ -7,15 +7,19 @@ import cn.edu.thssdb.schema.Session;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class BaseStatement implements Serializable {
     public String databaseName;
-    public Database database;
     public long session_id = -1;
     public void setSession(Session session){
         this.databaseName = session.getCurrentDatabaseName();
-        this.database = Manager.getInstance().getDatabases().get(databaseName);
         this.session_id = session.getSessionId();
+    }
+
+    public Database getDatabase(){
+        HashMap<String, Database> databases =  Manager.getInstance().getDatabases();
+        return databases.get(databaseName);
     }
 
     public SQLEvalResult exec(){

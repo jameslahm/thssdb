@@ -15,7 +15,7 @@ public class AlterDropStatement extends BaseStatement {
 
     @Override
     public SQLEvalResult exec() {
-        Table table =  this.database.getTableByName(tableName);
+        Table table =  this.getDatabase().getTableByName(tableName);
         table.dropColumn(columnName);
         return new SQLEvalResult();
     }
