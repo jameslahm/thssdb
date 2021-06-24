@@ -218,6 +218,13 @@ public class EvaluatorTest {
         Assertions.assertEquals(rows.get(0).get(0),"1");
         Assertions.assertEquals(rows.get(0).get(2),"alice");
 
+        sql = "select hello.id, hello.age, hello.name, hi.id from hello full outer join hi on hello.name = hi.name";
+        result = execSql(sql, session);
+        rows = result.queryResult.rowsToString();
+        Assertions.assertEquals(rows.size(),3);
+        Assertions.assertEquals(rows.get(0).get(0),"1");
+        Assertions.assertEquals(rows.get(0).get(2),"alice");
+
         // select id, name from hello natural join yello
         sql = "select hello.id, hello.age, hello.name, yello.identifier from hello natural join yello";
         result = execSql(sql, session);
