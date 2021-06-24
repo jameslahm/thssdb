@@ -1,7 +1,9 @@
 package cn.edu.thssdb.schema;
 
-import cn.edu.thssdb.statement.BaseStatement;
+import cn.edu.thssdb.statement.*;
+import com.sun.org.apache.bcel.internal.generic.Select;
 
+import java.sql.Savepoint;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -19,6 +21,9 @@ public class TransactionManager {
         this.database = database;
         this.logger = database.getLogger();
         this.sessionManager = SessionManager.getInstance();
+        this.sessionReadLocks = new HashMap<>();
+        this.sessionWriteLocks = new HashMap<>();
+        this.inTransactionSessions = new ArrayList<>();
     }
 
     public void setDatabase(Database database){
@@ -27,7 +32,30 @@ public class TransactionManager {
     }
 
     public boolean exec(BaseStatement statement,long session_id){
-        return true;
+        if (statement instanceof SelectStatement ||
+            statement instanceof ShowDatabaseStatement ||
+            statement instanceof ShowTablesStatement ||
+            statement instanceof ShowTableStatement)
+        {
+            return execReadStatement(statement,session_id);
+        }
+        else if (statement instanceof UpdateStatement || statement instanceof DeleteStatement
+        || statement instanceof  InsertStatement){
+            return execWriteStatement(statement,session_id);
+        }
+        else if (statement instanceof CommitStatement){
+            return CommitTransaction(statement,session_id);
+        }
+        else if (statement instanceof RollbackStatement){
+            return RollbackTransaction(statement,session_id);
+        }
+        else if (statement instanceof SavepointStatement){
+            return SavepointTransaction(statement,session_id);
+        }
+        else if (statement instanceof BeginStatement){
+            return BeginTransaction(statement,session_id);
+        }
+        return false;
     }
 
     public boolean execReadStatement(BaseStatement statement,long session_id){
@@ -42,11 +70,15 @@ public class TransactionManager {
         return true;
     }
 
-    public boolean CommitTransaction(BaseStatement statement){
+    public boolean CommitTransaction(BaseStatement statement,long session_id){
         return true;
     }
 
     public boolean RollbackTransaction(BaseStatement statement,long session_id){
+        return true;
+    }
+
+    public boolean SavepointTransaction(BaseStatement statement,long session_id){
         return true;
     }
 }

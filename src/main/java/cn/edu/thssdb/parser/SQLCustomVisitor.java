@@ -35,6 +35,27 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
     }
 
     @Override
+    public Object visitCommit_stmt(SQLParser.Commit_stmtContext ctx){
+        return new CommitStatement();
+    }
+
+    @Override
+    public Object visitSavepoint_stmt(SQLParser.Savepoint_stmtContext ctx){
+        String savepoint_name = (String) visit(ctx.getChild(2));
+        return new SavepointStatement(savepoint_name);
+    }
+    @Override
+    public Object visitRollback_stmt(SQLParser.Rollback_stmtContext ctx){
+        if (ctx.getChildCount() == 1){
+            return new RollbackStatement();
+        }
+        else{
+            String savepoint_name = (String) visit(ctx.getChild(4));
+            return new RollbackStatement(savepoint_name);
+        }
+    }
+
+    @Override
     public Object visitCreate_db_stmt(SQLParser.Create_db_stmtContext ctx){
         String db_name = (String) visit(ctx.getChild(2));
         return new CreateDatabaseStatement(db_name);
@@ -384,6 +405,10 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
 
     @Override
     public Object visitPassword(SQLParser.PasswordContext ctx){
+        return ctx.getChild(0).getText();
+    }
+    @Override
+    public Object visitSavepoint_name(SQLParser.Savepoint_nameContext ctx){
         return ctx.getChild(0).getText();
     }
 }

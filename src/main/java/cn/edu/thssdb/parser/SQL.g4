@@ -25,7 +25,23 @@ sql_stmt :
     | show_table_stmt
     | show_meta_stmt
     | quit_stmt
-    | update_stmt ;
+    | update_stmt
+    | commit_stmt
+    | rollback_stmt
+    | savepoint_stmt
+    | begin_transaction_stmt;
+
+commit_stmt :
+    K_COMMIT;
+
+rollback_stmt :
+    K_ROLLBACK (K_TO K_SAVEPOINT savepoint_name);
+
+savepoint_stmt :
+    K_SAVEPOINT savepoint_name;
+
+begin_transaction_stmt :
+    K_BEGIN K_TRANSACTION;
 
 create_db_stmt :
     K_CREATE K_DATABASE database_name ;
@@ -169,6 +185,9 @@ view_name :
 password :
     STRING_LITERAL ;
 
+savepoint_name :
+    IDENTIFIER ;
+
 EQ : '=';
 NE : '<>';
 LT : '<';
@@ -190,6 +209,9 @@ T_FLOAT : F L O A T;
 T_DOUBLE : D O U B L E;
 T_STRING : S T R I N G;
 
+K_COMMIT : C O M M I T;
+K_ROLLBACK : R O L L B A C K;
+K_SAVEPOINT : S A V E P O I N T;
 K_ADD : A D D;
 K_ALL : A L L;
 K_AS : A S;
@@ -234,6 +256,8 @@ K_VALUES : V A L U E S;
 K_VIEW : V I E W;
 K_WHERE : W H E R E;
 K_TABLES : T A B L E S;
+K_BEGIN : B E G I N;
+K_TRANSACTION : T R A N S A C T I O N;
 IDENTIFIER :
     [a-zA-Z_] [a-zA-Z_0-9]* ;
 
