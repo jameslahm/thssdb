@@ -200,8 +200,8 @@ SUB : '-';
 MUL : '*';
 DIV : '/';
 
-AND : '&&';
-OR : '||';
+AND : A N D;
+OR : O R;
 
 T_INT : I N T;
 T_LONG : L O N G;

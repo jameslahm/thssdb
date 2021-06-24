@@ -1,7 +1,6 @@
 package cn.edu.thssdb.schema;
 
 import cn.edu.thssdb.statement.*;
-import com.sun.org.apache.bcel.internal.generic.Select;
 
 import java.sql.Savepoint;
 import java.util.ArrayList;

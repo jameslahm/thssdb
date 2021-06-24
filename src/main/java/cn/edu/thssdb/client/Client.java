@@ -91,7 +91,7 @@ public class Client {
             break;
           case Global.QUIT:
             open = false;
-            break;
+            return;
           case Global.CONNECT:
             connect();
             break;

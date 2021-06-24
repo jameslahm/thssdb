@@ -38,7 +38,7 @@ public class IServiceHandler implements IService.Iface {
 
   @Override
   public ConnectResp connect(ConnectReq req) throws TException {
-    // TODO
+    Manager.getInstance().createDatabaseIfNotExists("test");
     ConnectResp resp = new ConnectResp();
     resp.setSessionId(Global.SESSION_ID);
     SessionManager.getInstance().addSession(Global.SESSION_ID,"test");

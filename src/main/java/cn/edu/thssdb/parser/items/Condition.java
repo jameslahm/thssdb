@@ -36,6 +36,10 @@ public class Condition {
             this.logic_op = LogicType.OR;
         }
 
+        if(comparator==null){
+            return;
+        }
+
         if (comparator.equalsIgnoreCase("=")) this.comparator = CompareType.EQ;
         else if (comparator.equalsIgnoreCase("<>")) this.comparator = CompareType.NE;
         else if (comparator.equalsIgnoreCase("<")) this.comparator = CompareType.LT;

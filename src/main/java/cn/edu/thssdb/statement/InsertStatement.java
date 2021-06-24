@@ -1,5 +1,6 @@
 package cn.edu.thssdb.statement;
 
+import cn.edu.thssdb.exception.PrimaryKeyEmptyException;
 import cn.edu.thssdb.parser.SQLEvalResult;
 import cn.edu.thssdb.parser.items.ValueEntry;
 import cn.edu.thssdb.schema.Column;
@@ -45,9 +46,7 @@ public class InsertStatement extends BaseStatement{
         }
         for (Column column:remains){
             if (column.isNotNull()){
-                //TODO
-                //throw exception
-                return new SQLEvalResult();
+                throw new PrimaryKeyEmptyException();
             }
         }
 

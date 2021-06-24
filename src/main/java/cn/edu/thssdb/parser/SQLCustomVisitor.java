@@ -9,6 +9,8 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import cn.edu.thssdb.statement.*;
 import cn.edu.thssdb.schema.Column;
 import cn.edu.thssdb.schema.Table;
@@ -99,7 +101,7 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
         List<SQLParser.Column_defContext> column_defs = ctx.column_def();
         ArrayList<String> primary_keys = new ArrayList<>();
         if(ctx.table_constraint()!= null){
-            primary_keys.addAll((ArrayList<String>) visit(ctx.table_constraint()));
+            primary_keys.addAll((List<String>) visit(ctx.table_constraint()));
         }
         ArrayList<Column> temp_columns = new ArrayList<>();
         for(int i = 0;i<column_defs.size();i++){
@@ -110,6 +112,7 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
             for (String primary_key:primary_keys){
                 if(column.getName().equalsIgnoreCase(primary_key)){
                     column.setPrimary(true);
+                    column.setNotNull(true);
                 }
             }
         }
@@ -118,6 +121,15 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
         }
         return new CreateTableStatement(table_name,columns);
     }
+
+    @Override
+    public Object visitTable_constraint(SQLParser.Table_constraintContext ctx){
+        List<String> columns = ctx.column_name().stream().map((nameCtx)->{
+            return nameCtx.IDENTIFIER().getText();
+        }).collect(Collectors.toList());
+        return columns;
+    }
+
     public Object visitShow_meta_stmt(SQLParser.Show_meta_stmtContext ctx){
         String table_name = (String) visit(ctx.getChild(2));
         return new ShowTableStatement(table_name);
@@ -135,8 +147,8 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
     @Override
     public Object visitDelete_stmt(SQLParser.Delete_stmtContext ctx){
         String table_name = (String) visit(ctx.getChild(2));
-        if(ctx.getChildCount() == 3){
-            Condition cond = (Condition) visit(ctx.getChild(2));
+        if(ctx.getChildCount() > 3){
+            Condition cond = (Condition) visit(ctx.getChild(ctx.getChildCount()-1));
             return new DeleteStatement(table_name,cond);
         }
         else{
@@ -228,7 +240,7 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
 
     @Override
     public Object visitUpdate_stmt(SQLParser.Update_stmtContext ctx){
-        String table_name = (String) visit(ctx.table_name());
+        String table_name = (String) visit(ctx.tableName());
         String column_name = (String) visit(ctx.column_name());
         Comparer value = (Comparer) visit(ctx.expression());
         Condition condition = (Condition) visit(ctx.multiple_condition());
@@ -334,7 +346,7 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
         }
         else {
             TableQuery left = (TableQuery) visit(ctx.getChild(0));
-            String right_name = (String) visit(ctx.table_name());
+            String right_name = (String) visit(ctx.tableName());
             TableQuery right = new TableQuery(right_name);
             String join_type;
             if (ctx.K_NATURAL() != null){
@@ -375,7 +387,7 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
 
     @Override
     public Object visitColumn_full_name(SQLParser.Column_full_nameContext ctx){
-        return ctx.getChild(0).getText();
+        return ctx.getText();
     }
 
     @Override
@@ -384,7 +396,7 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
     }
 
     @Override
-    public Object visitTable_name(SQLParser.Table_nameContext ctx){
+    public Object visitTableName(SQLParser.TableNameContext ctx){
         return ctx.getChild(0).getText();
     }
 

@@ -1,5 +1,6 @@
 package cn.edu.thssdb.schema;
 
+import cn.edu.thssdb.exception.TableNotExistException;
 import cn.edu.thssdb.query.QueryResult;
 import cn.edu.thssdb.query.QueryTable;
 import cn.edu.thssdb.utils.Global;
@@ -104,7 +105,7 @@ public class Database {
       return this.tables.get(table_name);
     else{
       //TODO
-      throw new RuntimeException();
+      throw new TableNotExistException();
     }
   }
 }

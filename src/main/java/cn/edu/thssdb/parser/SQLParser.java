@@ -64,7 +64,7 @@ public class SQLParser extends Parser {
 	private static String[] makeLiteralNames() {
 		return new String[] {
 			null, "';'", "'('", "','", "')'", "'.'", "'='", "'<>'", "'<'", "'>'", 
-			"'<='", "'>='", "'+'", "'-'", "'*'", "'/'", "'&&'", "'||'"
+			"'<='", "'>='", "'+'", "'-'", "'*'", "'/'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
