@@ -27,7 +27,8 @@ public class Logger {
     public void logStatement(BaseStatement statement){
         if (statement instanceof DeleteStatement ||
                 statement instanceof UpdateStatement ||
-                statement instanceof InsertStatement || statement instanceof CommitStatement){
+                statement instanceof InsertStatement || statement instanceof CommitStatement ||
+                statement instanceof BeginStatement || statement instanceof CreateTableStatement){
             redoList.add(statement);
         }
     }

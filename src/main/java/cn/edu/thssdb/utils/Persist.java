@@ -30,6 +30,7 @@ public class Persist {
         }
     }
     public static void serializeLog(String path, Iterator<BaseStatement> iterator){
+        deleteFile(path);
         File file = getOrCreateFile(path);
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(path);
@@ -46,7 +47,10 @@ public class Persist {
     }
     public static void deleteFile(String path){
         try {
-            Files.delete(Paths.get(path));
+            File file = new File(path);
+            if(file.exists()){
+                Files.delete(Paths.get(path));
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -22,7 +22,7 @@ public class SQLEvaluator {
         SQLLexer lexer = new SQLLexer(CharStreams.fromString(stmt));
         SQLParser parser = new SQLParser(new CommonTokenStream(lexer));
         //
-        Manager.getMutex().writeLock().lock();
+//        Manager.getMutex().writeLock().lock();
         try {
             SQLCustomVisitor visitor = new SQLCustomVisitor();
             ArrayList<BaseStatement> results = (ArrayList<BaseStatement>) visitor.visitParse(parser.parse());
@@ -38,10 +38,10 @@ public class SQLEvaluator {
 //            }
             return results;
         } catch (Exception e) {
+            throw e;
         }
         finally {
-            Manager.getMutex().writeLock().unlock();
+//            Manager.getMutex().writeLock().unlock();
         }
-        return null;
     }
 }

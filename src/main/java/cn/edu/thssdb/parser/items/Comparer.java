@@ -1,6 +1,8 @@
 package cn.edu.thssdb.parser.items;
 
-public class Comparer {
+import java.io.Serializable;
+
+public class Comparer implements Serializable {
     public String value;
     public boolean is_literal;
     public boolean is_null;

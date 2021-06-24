@@ -14,6 +14,7 @@ import cn.edu.thssdb.type.ColumnType;
 import java.util.ArrayList;
 
 public class InsertStatement extends BaseStatement{
+    private static final long serialVersionUID = 1620487218622474542L;
     private ArrayList<String> column_names;
     private ArrayList<ValueEntry> values;
     private String table_name;
@@ -77,6 +78,7 @@ public class InsertStatement extends BaseStatement{
             i++;
             rows.add(new Row(entries));
         }
+        insertedRows = new ArrayList<>();
         for (Row row:rows){
             insertedRows.add(row);
             table.insert(row);

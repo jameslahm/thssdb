@@ -44,7 +44,7 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
 
     @Override
     public Object visitSavepoint_stmt(SQLParser.Savepoint_stmtContext ctx){
-        String savepoint_name = (String) visit(ctx.getChild(2));
+        String savepoint_name = (String) visit(ctx.getChild(1));
         return new SavepointStatement(savepoint_name);
     }
     @Override
@@ -53,7 +53,7 @@ public class SQLCustomVisitor extends SQLBaseVisitor {
             return new RollbackStatement();
         }
         else{
-            String savepoint_name = (String) visit(ctx.getChild(4));
+            String savepoint_name = (String) visit(ctx.getChild(3));
             return new RollbackStatement(savepoint_name);
         }
     }

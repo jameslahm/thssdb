@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class DeleteStatement extends BaseStatement{
+    private static final long serialVersionUID = 4690469538062234590L;
     private String table_name;
     private Condition condition;
     private ArrayList<Row> deletedRows;
@@ -27,6 +28,7 @@ public class DeleteStatement extends BaseStatement{
 
     @Override
     public SQLEvalResult exec(){
+        deletedRows = new ArrayList<>();
         Table table = getDatabase().getTableByName(table_name);
         Iterator<Row> iter = table.iterator();
         if (this.condition == null){

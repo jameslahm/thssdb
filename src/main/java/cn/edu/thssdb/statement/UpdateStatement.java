@@ -15,6 +15,7 @@ import java.util.Iterator;
 
 public class UpdateStatement extends BaseStatement{
 
+    private static final long serialVersionUID = 7627090398151756604L;
     private String table_name;
     private String column_name;
     private Comparer value;
@@ -30,6 +31,7 @@ public class UpdateStatement extends BaseStatement{
 
     @Override
     public SQLEvalResult exec(){
+        updatedRowPairs = new ArrayList<>();
         Table table = getDatabase().getTableByName(table_name);
         int index = table.columnToIndex(column_name);
         if (index == -1){

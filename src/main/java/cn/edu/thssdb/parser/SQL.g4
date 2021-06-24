@@ -44,7 +44,7 @@ commit_stmt :
     K_COMMIT;
 
 rollback_stmt :
-    K_ROLLBACK (K_TO K_SAVEPOINT savepoint_name);
+    K_ROLLBACK (K_TO K_SAVEPOINT savepoint_name)?;
 
 savepoint_stmt :
     K_SAVEPOINT savepoint_name;

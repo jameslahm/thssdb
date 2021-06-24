@@ -44,6 +44,9 @@ public class Manager {
 
   public void init(){
     ArrayList<String> databaseNames = Persist.fromJsonToManagerMeta(getMetaPath());
+    if(databaseNames.isEmpty()){
+      databaseNames.add("test");
+    }
     for (String databaseName:databaseNames){
       Database database = new Database(databaseName);
       databases.put(databaseName,database);

@@ -16,6 +16,7 @@ import cn.edu.thssdb.schema.Manager;
 import cn.edu.thssdb.schema.Session;
 import cn.edu.thssdb.schema.SessionManager;
 import cn.edu.thssdb.statement.BaseStatement;
+import cn.edu.thssdb.statement.UseDatabaseStatement;
 import cn.edu.thssdb.utils.Global;
 import cn.edu.thssdb.utils.Pair;
 import org.apache.thrift.TException;
@@ -71,13 +72,29 @@ public class IServiceHandler implements IService.Iface {
     List<SQLEvalResult> results = stats.stream().map((stat)-> {
         stat.setSession(session);
         Database database = Manager.getInstance().getDatabaseByName(session.getCurrentDatabaseName());
-        if (database==null){
+        if (database==null && !(stat instanceof UseDatabaseStatement)){
             SQLEvalResult result = new SQLEvalResult();
             result.error = new DatabaseNotExistException();
             return result;
         } else {
-            Pair<SQLEvalResult,Boolean> p =  database.getTransactionManager().exec(stat);
-            return p.left;
+            if(stat instanceof UseDatabaseStatement){
+                try{
+                    stat.exec();
+                    return new SQLEvalResult();
+                } catch (Exception e){
+                    SQLEvalResult result = new SQLEvalResult();
+                    result.error = e;
+                    return result;
+                }
+            }
+            try {
+                Pair<SQLEvalResult, Boolean> p = database.getTransactionManager().exec(stat);
+                return p.left;
+            } catch (Exception e){
+                SQLEvalResult result = new SQLEvalResult();
+                result.error = e;
+                return result;
+            }
         }
     }
     ).collect(Collectors.toList());

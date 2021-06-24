@@ -48,17 +48,28 @@ public class TransactionManager {
     public Pair<SQLEvalResult,Boolean> exec(BaseStatement statement){
         long session_id = statement.session_id;
         Pair<SQLEvalResult,Boolean> result;
+        boolean isInTransaction = inTransactionSessions.containsKey(session_id);
         if (statement instanceof SelectStatement ||
                 statement instanceof ShowDatabaseStatement ||
                 statement instanceof ShowTablesStatement ||
                 statement instanceof ShowTableStatement)
         {
             result = execReadStatement(statement,session_id);
+            if(!isInTransaction){
+                CommitStatement commitStatement = new CommitStatement();
+                commitStatement.setSession(SessionManager.getInstance().getSessionById(session_id));
+                CommitTransaction(commitStatement, session_id);
+            }
         }
         else if (statement instanceof UpdateStatement || statement instanceof DeleteStatement
                 || statement instanceof  InsertStatement || statement instanceof DropDatabaseStatement
                 || statement instanceof DropTableStatement){
-                result = execWriteStatement(statement,session_id);
+            result = execWriteStatement(statement,session_id);
+            if(!isInTransaction){
+                CommitStatement commitStatement = new CommitStatement();
+                commitStatement.setSession(SessionManager.getInstance().getSessionById(session_id));
+                CommitTransaction(commitStatement, session_id);
+            }
         }
         else if (statement instanceof CommitStatement){
             result = CommitTransaction(statement,session_id);
@@ -75,6 +86,12 @@ public class TransactionManager {
         else if (statement instanceof CheckpointStatement){
             result = CheckpointTransaction(statement,session_id);
         }
+        else if(statement instanceof CreateTableStatement){
+            SQLEvalResult res = statement.exec();
+            logger.logStatement(statement);
+            logger.writeLog();
+            result = new Pair<>(res,true);
+        }
         else{
             result = MetaTransaction(statement,session_id);
         }
@@ -84,9 +101,7 @@ public class TransactionManager {
                 inTransactionSessions.get(session_id).add(statement);
             }
             statement.session_id = session_id;
-            logger.logStatement(statement);
         }
-        logger.writeLog();
         return result;
     }
 
@@ -122,7 +137,6 @@ public class TransactionManager {
             for (String tableName:tableNames){
                 releaseTableReadLock(tableName,session_id);
             }
-            return new Pair<>(result,true);
         }
         else if (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.SERIALIZABLE){
             ArrayList<String> tableNames = statement.getTableNames();
@@ -138,9 +152,12 @@ public class TransactionManager {
                 result.error = e;
                 return new Pair<>(result,false);
             }
-            return new Pair<>(result,true);
         }
-        return new Pair<>(result,false);
+        if(result.error==null){
+            logger.logStatement(statement);
+            logger.writeLog();
+        }
+        return new Pair<>(result,true);
     }
 
     public Pair<SQLEvalResult,Boolean> execWriteStatement(BaseStatement statement,long session_id){
@@ -176,7 +193,6 @@ public class TransactionManager {
             for (String tableName:tableNames){
                 releaseTableWriteLock(tableName,session_id);
             }
-            return new Pair<>(result,true);
         }
         else if (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_COMMITTED ||
             Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.SERIALIZABLE){
@@ -186,9 +202,12 @@ public class TransactionManager {
                 result.error = e;
                 return new Pair<>(result,false);
             }
-            return new Pair<>(result,true);
         }
-        return new Pair<>(result,false);
+        if(result.error==null){
+            logger.logStatement(statement);
+            logger.writeLog();
+        }
+        return new Pair<>(result,true);
     }
 
     public Pair<SQLEvalResult,Boolean> BeginTransaction(BaseStatement statement,long session_id){
@@ -204,10 +223,14 @@ public class TransactionManager {
         if (!this.sessionWriteLocks.containsKey(session_id)){
             this.sessionWriteLocks.put(session_id,new LinkedList<>());
         }
+        logger.logStatement(statement);
+        logger.writeLog();
         return new Pair<>(new SQLEvalResult(),true);
     }
 
     public Pair<SQLEvalResult,Boolean> CommitTransaction(BaseStatement statement,long session_id){
+        logger.logStatement(statement);
+        logger.writeLog();
         this.releaseTransactionLocks(session_id);
         this.sessionReadLocks.remove(session_id);
         this.sessionWriteLocks.remove(session_id);
@@ -222,7 +245,7 @@ public class TransactionManager {
         int rollback_pos = 0;
 
         if (savepoint_name ==null){
-            rollback_pos = savePoints.remove(savePoints.size()-1).position;
+            rollback_pos = 0;
         }
         else {
             int savepoint_pos = -1;
@@ -243,11 +266,12 @@ public class TransactionManager {
             }
         }
         ArrayList<BaseStatement> TransactionStatements = inTransactionSessions.get(session_id);
-        while (TransactionStatements.size() >= rollback_pos){
+        while (TransactionStatements.size() > rollback_pos){
             BaseStatement stat = TransactionStatements.remove(TransactionStatements.size()-1);
             logger.removeStatement(stat);
             stat.undo();
         }
+        logger.writeLog();
         return new Pair<>(new SQLEvalResult(),true);
     }
 
@@ -261,10 +285,10 @@ public class TransactionManager {
     }
 
     public Pair<SQLEvalResult,Boolean> CheckpointTransaction(BaseStatement statement,long session_id) {
-        for (long session : inTransactionSessions.keySet()){
-            CommitTransaction(new BaseStatement(),session);
-            BeginTransaction(new BaseStatement(),session);
-        }
+//        for (long session : inTransactionSessions.keySet()){
+//            CommitTransaction(new BaseStatement(),session);
+//            BeginTransaction(new BaseStatement(),session);
+//        }
         database.persist();
         return new Pair<>(new SQLEvalResult(),true);
     }

@@ -5,6 +5,7 @@ import cn.edu.thssdb.schema.Column;
 import cn.edu.thssdb.schema.Table;
 
 public class AlterAddStatement extends BaseStatement {
+    private static final long serialVersionUID = 725001626265735570L;
     String tableName;
     Column column;
 
