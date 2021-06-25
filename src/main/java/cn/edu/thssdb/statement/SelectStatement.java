@@ -11,6 +11,7 @@ import cn.edu.thssdb.utils.Pair;
 import javafx.scene.control.Tab;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class SelectStatement extends BaseStatement{
 
@@ -97,6 +98,13 @@ public class SelectStatement extends BaseStatement{
             String name = result_columns.get(i);
             if (name.equals("*")){
                 select_all = true;
+                ArrayList<String> cols = new ArrayList<>();
+                for(Table table:tables){
+                    cols.addAll(table.columns.stream().map((column -> {
+                         return table.tableName+"."+column.getName();
+                    })).collect(Collectors.toList()));
+                }
+                result_columns = cols;
                 break;
             }
             else if(name.endsWith("*")){

@@ -94,6 +94,8 @@ use course
 drop database course
 use test
 use course
+
+
 create table student (id int, age int, primary key(id))
 begin transaction
 insert into student(id,age) values(2,1);

@@ -76,6 +76,7 @@ public class Client {
       echoStarting();
       String host = commandLine.getOptionValue(HOST_ARGS, Global.DEFAULT_SERVER_HOST);
       int port = Integer.parseInt(commandLine.getOptionValue(PORT_ARGS, String.valueOf(Global.DEFAULT_SERVER_PORT)));
+      System.out.println("Port: "+port);
       transport = new TSocket(host, port);
       transport.open();
       protocol = new TBinaryProtocol(transport);
@@ -244,8 +245,8 @@ public class Client {
     options.addOption(Option.builder(PORT_ARGS)
         .argName(PORT_NAME)
         .desc("Port (optional, default 6667)")
-        .hasArg(false)
-        .required(false)
+        .hasArg(true)
+        .required(true)
         .build()
     );
     return options;

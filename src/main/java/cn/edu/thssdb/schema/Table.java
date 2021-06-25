@@ -32,6 +32,7 @@ public class Table implements Iterable<Row> {
     this.lock = new ReentrantReadWriteLock();
   }
 
+
   public void initPrimaryIndex(){
     for (int i=0;i<columns.size();i++){
       Column column = this.columns.get(i);

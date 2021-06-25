@@ -1,5 +1,6 @@
 package cn.edu.thssdb.service;
 
+import cn.edu.thssdb.exception.BadSqlException;
 import cn.edu.thssdb.exception.DatabaseNotExistException;
 import cn.edu.thssdb.rpc.thrift.ConnectReq;
 import cn.edu.thssdb.rpc.thrift.ConnectResp;
@@ -68,37 +69,57 @@ public class IServiceHandler implements IService.Iface {
     ExecuteStatementResp resp = new ExecuteStatementResp();
     Session session = SessionManager.getInstance().getSessionById(req.sessionId);
     SQLEvaluator evaluator = new SQLEvaluator(ThssDB.getInstance().getManager(),session);
-    ArrayList<BaseStatement> stats = evaluator.evaluate(req.statement);
-    List<SQLEvalResult> results = stats.stream().map((stat)-> {
-        stat.setSession(session);
-        Database database = Manager.getInstance().getDatabaseByName(session.getCurrentDatabaseName());
-        if (database==null && !(stat instanceof UseDatabaseStatement)){
-            SQLEvalResult result = new SQLEvalResult();
-            result.error = new DatabaseNotExistException();
-            return result;
-        } else {
-            if(stat instanceof UseDatabaseStatement){
-                try{
-                    stat.exec();
-                    return new SQLEvalResult();
-                } catch (Exception e){
-                    SQLEvalResult result = new SQLEvalResult();
-                    result.error = e;
-                    return result;
+    ArrayList<BaseStatement> stats = null;
+    List<SQLEvalResult> results = null;
+    try {
+        stats = evaluator.evaluate(req.statement);
+        results = stats.stream().map((stat)-> {
+                    try {
+                        stat.setSession(session);
+                    } catch (Exception e){
+                        SQLEvalResult result = new SQLEvalResult();
+                        result.error = e;
+                        return result;
+                    }
+                    Database database = Manager.getInstance().getDatabaseByName(session.getCurrentDatabaseName());
+                    if (database==null && !(stat instanceof UseDatabaseStatement)){
+                        SQLEvalResult result = new SQLEvalResult();
+                        result.error = new DatabaseNotExistException();
+                        return result;
+                    } else {
+                        if(stat instanceof UseDatabaseStatement){
+                            try{
+                                stat.exec();
+                                return new SQLEvalResult();
+                            } catch (Exception e){
+                                SQLEvalResult result = new SQLEvalResult();
+                                result.error = e;
+                                return result;
+                            }
+                        }
+                        try {
+                            Pair<SQLEvalResult, Boolean> p = database.getTransactionManager().exec(stat);
+                            return p.left;
+                        } catch (Exception e){
+                            SQLEvalResult result = new SQLEvalResult();
+                            result.error = e;
+                            return result;
+                        }
+                    }
                 }
-            }
-            try {
-                Pair<SQLEvalResult, Boolean> p = database.getTransactionManager().exec(stat);
-                return p.left;
-            } catch (Exception e){
-                SQLEvalResult result = new SQLEvalResult();
-                result.error = e;
-                return result;
-            }
-        }
+        ).collect(Collectors.toList());
+    } catch (Exception e){
+        SQLEvalResult result = new SQLEvalResult();
+        result.error = e;
+        results = new ArrayList<SQLEvalResult>(List.of(result));
     }
-    ).collect(Collectors.toList());
-    SQLEvalResult result = results.get(0);
+    SQLEvalResult result = null;
+    if(results.isEmpty()){
+        result = new SQLEvalResult();
+        result.error = new BadSqlException();
+    } else {
+        result = results.get(0);
+    }
     if (result.onError()) {
         resp.setHasResult(false);
         resp.setIsAbort(true);

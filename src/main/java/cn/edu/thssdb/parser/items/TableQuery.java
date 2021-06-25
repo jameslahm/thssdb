@@ -188,9 +188,11 @@ public class TableQuery {
                 for (int i =0;i<right_rows.size();i++){
                     if (!right_matched[i]){
                         ArrayList<Entry> entries = right_rows.get(i).getEntries();
+                        ArrayList<Entry> left_entries = new ArrayList<>();
                         for(int j =0;j<left_size;j++)
-                            entries.add(null);
-                        rows.add(new Row(entries.toArray(new Entry[0])));
+                            left_entries.add(null);
+                        left_entries.addAll(entries);
+                        rows.add(new Row(left_entries.toArray(new Entry[0])));
                     }
                 }
             }

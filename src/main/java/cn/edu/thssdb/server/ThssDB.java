@@ -57,11 +57,29 @@ public class ThssDB {
 
     handler = new IServiceHandler();
     processor = new IService.Processor(handler);
-    Runnable setup2 = ()-> setUp(Global.DEFAULT_SERVERR_PORT2,processor);
+    Runnable setup2 = ()-> setUp2(Global.DEFAULT_SERVERR_PORT2,processor);
+
+    try {
+      Thread.sleep(10000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
     new Thread(setup2).start();
   }
 
   private static void setUp(int port,IService.Processor processor) {
+    try {
+      transport = new TServerSocket(port);
+      server = new TSimpleServer(new TServer.Args(transport).processor(processor));
+      logger.info("Starting ThssDB ...");
+      server.serve();
+    } catch (TTransportException e) {
+      logger.error(e.getMessage());
+    }
+  }
+
+  private static void setUp2(int port,IService.Processor processor) {
     try {
       transport = new TServerSocket(port);
       server = new TSimpleServer(new TServer.Args(transport).processor(processor));

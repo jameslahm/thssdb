@@ -11,7 +11,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Manager {
   private HashMap<String, Database> databases = new HashMap<>();
-  private static ReentrantReadWriteLock mutex = new ReentrantReadWriteLock();
   private HashMap<String,Integer> onlineDatabase = new HashMap<>();
 
   public static Manager getInstance() {
@@ -22,9 +21,6 @@ public class Manager {
     this.databases = databases;
   }
 
-  public static ReentrantReadWriteLock getMutex() {
-    return mutex;
-  }
 
   public HashMap<String, Integer> getOnlineDatabase() {
     return onlineDatabase;
