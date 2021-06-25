@@ -54,7 +54,6 @@
 1: begin transaction;
 1: create table student (id int, age int, primary key(id));
 1: insert into student(id,age) values(3,1);
-1: commit;
 1: checkpoint;
 1: begin transaction;
 1: insert into student(id,age) values(4,1);
