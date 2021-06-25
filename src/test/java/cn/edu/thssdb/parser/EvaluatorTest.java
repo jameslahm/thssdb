@@ -186,6 +186,41 @@ public class EvaluatorTest {
         Assertions.assertEquals(rows.get(0).get(0),"2");
         Assertions.assertEquals(rows.get(1).get(0),"2");
 
+        // select id where id>=1
+        sql = "select id from hello where id>=1";
+        result = execSql(sql,session);
+        rows = result.queryResult.rowsToString();
+        Assertions.assertEquals(rows.size(),2);
+        Assertions.assertEquals(rows.get(0).get(0),"1");
+        Assertions.assertEquals(rows.get(1).get(0),"2");
+
+        // select id where <=
+        sql = "select id from hello where id<=1";
+        result = execSql(sql,session);
+        rows = result.queryResult.rowsToString();
+        Assertions.assertEquals(rows.size(),1);
+        Assertions.assertEquals(rows.get(0).get(0),"1");
+
+        // select id where <
+        sql = "select id from hello where id<1";
+        result = execSql(sql,session);
+        rows = result.queryResult.rowsToString();
+        Assertions.assertEquals(rows.size(),0);
+
+        // select id where >
+        sql = "select id from hello where id>1";
+        result = execSql(sql,session);
+        rows = result.queryResult.rowsToString();
+        Assertions.assertEquals(rows.size(),1);
+        Assertions.assertEquals(rows.get(0).get(0),"2");
+
+        // select where !=
+        sql = "select id from hello where id<>1";
+        result = execSql(sql,session);
+        rows = result.queryResult.rowsToString();
+        Assertions.assertEquals(rows.size(),1);
+        Assertions.assertEquals(rows.get(0).get(0),"2");
+
         // select id, age, name from hello join hi on hello.name = hi.name
         sql = "select hello.id, hello.age, hello.name, hi.id from hello join hi on hello.name = hi.name";
         result = execSql(sql,session);
