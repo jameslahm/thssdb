@@ -35,6 +35,8 @@ public enum CompareType {
             left = new Double((Float)value);
         } else if(value instanceof Double) {
             left = (Double) value;
+        } else if(value instanceof Long){
+            left = new Double((Long)value);
         } else {
             throw new BadComparerException();
         }
